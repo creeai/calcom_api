@@ -77,9 +77,68 @@ function generateWeeklyAvailability() {
   return dates;
 }
 
+// Função para gerar disponibilidade estruturada baseada em dados reais
+function generateStructuredAvailabilityFromData(availabilityData) {
+  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const dates = [];
+  
+  // Gerar datas para os próximos 7 dias
+  const today = new Date();
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    
+    const dayName = daysOfWeek[date.getDay()];
+    const dateString = date.toISOString().split('T')[0];
+    const dayNumber = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    
+    // Verificar se este dia está nos dias configurados
+    const isDayAvailable = availabilityData.days && availabilityData.days.includes(dayNumber);
+    
+    let hours = [];
+    if (isDayAvailable && availabilityData.startTime && availabilityData.endTime) {
+      // Gerar slots de 1 hora baseado no horário configurado
+      const startTime = availabilityData.startTime;
+      const endTime = availabilityData.endTime;
+      
+      // Converter horários para análise
+      const [startHour, startMin] = startTime.split(':').map(Number);
+      const [endHour, endMin] = endTime.split(':').map(Number);
+      
+      const startMinutes = startHour * 60 + startMin;
+      const endMinutes = endHour * 60 + endMin;
+      
+      // Gerar slots de 1 hora
+      for (let currentMinutes = startMinutes; currentMinutes < endMinutes; currentMinutes += 60) {
+        const currentHour = Math.floor(currentMinutes / 60);
+        const nextHour = Math.floor((currentMinutes + 60) / 60);
+        
+        if (nextHour <= endHour) {
+          const startTimeStr = `${currentHour.toString().padStart(2, '0')}:00 BRT`;
+          const endTimeStr = `${nextHour.toString().padStart(2, '0')}:00 BRT`;
+          
+          hours.push({
+            start: startTimeStr,
+            end: endTimeStr
+          });
+        }
+      }
+    }
+    
+    dates.push({
+      day: dayName,
+      date: dateString,
+      hours: hours
+    });
+  }
+  
+  return dates;
+}
+
 // Obter uma disponibilidade específica por ID (DEVE VIR ANTES DA ROTA GERAL)
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
+  const { format = 'structured' } = req.query;
   
   // Verificar se o ID é um número válido
   if (isNaN(id) || !Number.isInteger(Number(id))) {
@@ -103,8 +162,30 @@ router.get('/:id', async (req, res) => {
       });
     }
     
-    console.log(`✅ Disponibilidade com ID ${id} encontrada:`, result.rows[0]);
-    res.json(result.rows[0]);
+    const availabilityData = result.rows[0];
+    console.log(`✅ Disponibilidade com ID ${id} encontrada:`, availabilityData);
+    
+    // Se format=original, retornar dados brutos
+    if (format === 'original') {
+      return res.json(availabilityData);
+    }
+    
+    // Se format=structured (padrão), retornar formato estruturado
+    const structuredDates = generateStructuredAvailabilityFromData(availabilityData);
+    
+    res.json([{
+      data: {
+        dates: structuredDates
+      },
+      meta: {
+        serverTime: new Date().toISOString(),
+        statusCode: 200,
+        message: "FOUND",
+        availabilityId: parseInt(id),
+        originalData: availabilityData
+      }
+    }]);
+    
   } catch (err) {
     console.error(`❌ Erro ao buscar disponibilidade com ID ${id}:`, err);
     res.status(500).json({ 

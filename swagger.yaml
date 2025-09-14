@@ -1,0 +1,1011 @@
+openapi: 3.0.3
+info:
+  title: Cal.com API
+  description: |
+    API completa para gerenciamento de agendamentos, usuários, equipes e disponibilidade.
+    Baseada na API oficial do Cal.com v1 com endpoints adicionais.
+  version: 1.0.0
+  contact:
+    name: Cal.com API Support
+    email: support@cal.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api-cal-app.mimenl.easypanel.host
+    description: Servidor de Produção
+  - url: http://localhost:3000
+    description: Servidor de Desenvolvimento
+
+tags:
+  - name: users
+    description: Gerenciamento de usuários
+  - name: bookings
+    description: Gerenciamento de agendamentos
+  - name: event-types
+    description: Gerenciamento de tipos de eventos
+  - name: availability
+    description: Gerenciamento de disponibilidade
+  - name: schedules
+    description: Gerenciamento de horários
+  - name: slots
+    description: Busca de horários disponíveis
+  - name: teams
+    description: Gerenciamento de equipes
+  - name: memberships
+    description: Gerenciamento de membros
+  - name: setup
+    description: Configuração do banco de dados
+  - name: explore
+    description: Exploração do banco de dados
+  - name: health
+    description: Monitoramento da aplicação
+
+paths:
+  /:
+    get:
+      tags:
+        - health
+      summary: Informações da API
+      description: Retorna informações sobre a API, endpoints disponíveis e exemplos de uso
+      responses:
+        '200':
+          description: Informações da API
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: "Cal.com API"
+                  version:
+                    type: string
+                    example: "1.0.0"
+                  host:
+                    type: string
+                    example: "api-cal-app.mimenl.easypanel.host"
+                  endpoints:
+                    type: object
+                    properties:
+                      users:
+                        type: string
+                        example: "https://api-cal-app.mimenl.easypanel.host/user"
+                      bookings:
+                        type: string
+                        example: "https://api-cal-app.mimenl.easypanel.host/booking"
+                      eventTypes:
+                        type: string
+                        example: "https://api-cal-app.mimenl.easypanel.host/event-types"
+                      availability:
+                        type: string
+                        example: "https://api-cal-app.mimenl.easypanel.host/availability"
+
+  /health:
+    get:
+      tags:
+        - health
+      summary: Health Check
+      description: Verifica o status da aplicação e conectividade com o banco de dados
+      responses:
+        '200':
+          description: Aplicação funcionando
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "OK"
+                  timestamp:
+                    type: string
+                    format: date-time
+                  database:
+                    type: string
+                    example: "Connected"
+                  environment:
+                    type: string
+                    example: "production"
+        '500':
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users:
+    get:
+      tags:
+        - users
+      summary: Listar usuários
+      description: Lista todos os usuários com filtros e paginação
+      parameters:
+        - name: page
+          in: query
+          description: Número da página
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Itens por página
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: email
+          in: query
+          description: Filtrar por email
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: Filtrar por nome
+          required: false
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          description: Campo para ordenação
+          required: false
+          schema:
+            type: string
+            enum: [id, name, email, username, created_at, updated_at]
+            default: id
+        - name: sortOrder
+          in: query
+          description: Ordem da ordenação
+          required: false
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: ASC
+      responses:
+        '200':
+          description: Lista de usuários
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  filters:
+                    type: object
+        '500':
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - users
+      summary: Criar usuário
+      description: Cria um novo usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "João Silva"
+                email:
+                  type: string
+                  format: email
+                  example: "joao@exemplo.com"
+                username:
+                  type: string
+                  example: "joao.silva"
+              required:
+                - name
+                - email
+      responses:
+        '201':
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Email já existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/{id}:
+    get:
+      tags:
+        - users
+      summary: Buscar usuário por ID
+      description: Busca um usuário específico por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do usuário
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Usuário encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Usuário não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - users
+      summary: Atualizar usuário
+      description: Atualiza um usuário existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do usuário
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "João Silva Atualizado"
+                email:
+                  type: string
+                  format: email
+                  example: "joao.novo@exemplo.com"
+                username:
+                  type: string
+                  example: "joao.silva.novo"
+      responses:
+        '200':
+          description: Usuário atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Usuário não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - users
+      summary: Deletar usuário
+      description: Deleta um usuário
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do usuário
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Usuário deletado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuário deletado com sucesso"
+                  user:
+                    $ref: '#/components/schemas/User'
+        '404':
+          description: Usuário não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/email/{email}:
+    get:
+      tags:
+        - users
+      summary: Buscar usuário por email
+      description: Busca um usuário específico por email
+      parameters:
+        - name: email
+          in: path
+          required: true
+          description: Email do usuário
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: Usuário encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Usuário não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /availability:
+    get:
+      tags:
+        - availability
+      summary: Listar disponibilidades
+      description: Lista todas as disponibilidades com filtros e paginação
+      parameters:
+        - name: page
+          in: query
+          description: Número da página
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Itens por página
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: userId
+          in: query
+          description: Filtrar por ID do usuário
+          required: false
+          schema:
+            type: integer
+        - name: scheduleId
+          in: query
+          description: Filtrar por ID do schedule
+          required: false
+          schema:
+            type: integer
+        - name: date
+          in: query
+          description: Filtrar por data específica
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Lista de disponibilidades
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  availability:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Availability'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  filters:
+                    type: object
+
+    post:
+      tags:
+        - availability
+      summary: Criar disponibilidade
+      description: Cria uma nova disponibilidade
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  example: 1
+                scheduleId:
+                  type: integer
+                  example: 1
+                startTime:
+                  type: string
+                  format: date-time
+                  example: "2024-01-15T09:00:00Z"
+                endTime:
+                  type: string
+                  format: date-time
+                  example: "2024-01-15T17:00:00Z"
+                days:
+                  type: array
+                  items:
+                    type: integer
+                  example: [1, 2, 3, 4, 5]
+              required:
+                - userId
+                - scheduleId
+                - startTime
+                - endTime
+      responses:
+        '201':
+          description: Disponibilidade criada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Availability'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /availability/{id}:
+    get:
+      tags:
+        - availability
+      summary: Buscar disponibilidade por ID
+      description: Busca uma disponibilidade específica por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID da disponibilidade
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Disponibilidade encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Availability'
+        '404':
+          description: Disponibilidade não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - availability
+      summary: Atualizar disponibilidade
+      description: Atualiza uma disponibilidade existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID da disponibilidade
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                scheduleId:
+                  type: integer
+                  example: 2
+                startTime:
+                  type: string
+                  format: date-time
+                  example: "2024-01-15T08:00:00Z"
+                endTime:
+                  type: string
+                  format: date-time
+                  example: "2024-01-15T18:00:00Z"
+                days:
+                  type: array
+                  items:
+                    type: integer
+                  example: [1, 2, 3, 4, 5, 6]
+      responses:
+        '200':
+          description: Disponibilidade atualizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Availability'
+        '404':
+          description: Disponibilidade não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - availability
+      summary: Deletar disponibilidade
+      description: Deleta uma disponibilidade
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID da disponibilidade
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Disponibilidade deletada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Disponibilidade deletada com sucesso"
+                  availability:
+                    $ref: '#/components/schemas/Availability'
+        '404':
+          description: Disponibilidade não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /availability/check:
+    post:
+      tags:
+        - availability
+      summary: Verificar disponibilidade
+      description: Verifica se um usuário está disponível em um período específico
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  example: 1
+                startTime:
+                  type: string
+                  format: date-time
+                  example: "2024-01-15T10:00:00Z"
+                endTime:
+                  type: string
+                  format: date-time
+                  example: "2024-01-15T11:00:00Z"
+                date:
+                  type: string
+                  format: date
+                  example: "2024-01-15"
+              required:
+                - userId
+                - startTime
+                - endTime
+      responses:
+        '200':
+          description: Verificação de disponibilidade
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  available:
+                    type: boolean
+                    example: true
+                  availability:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Availability'
+                  requestedPeriod:
+                    type: object
+                    properties:
+                      startTime:
+                        type: string
+                        format: date-time
+                      endTime:
+                        type: string
+                        format: date-time
+                      date:
+                        type: string
+                        format: date
+
+  /availability/user/{userId}/available-slots:
+    get:
+      tags:
+        - availability
+      summary: Obter slots disponíveis
+      description: Obtém horários disponíveis para um usuário em uma data específica
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID do usuário
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: true
+          description: Data para verificar disponibilidade
+          schema:
+            type: string
+            format: date
+        - name: duration
+          in: query
+          required: false
+          description: Duração dos slots em minutos
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Slots disponíveis
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date
+                  userId:
+                    type: integer
+                  duration:
+                    type: integer
+                  availableSlots:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Slot'
+                  totalSlots:
+                    type: integer
+        '400':
+          description: Parâmetro date é obrigatório
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "João Silva"
+        email:
+          type: string
+          format: email
+          example: "joao@exemplo.com"
+        username:
+          type: string
+          example: "joao.silva"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+
+    Booking:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        userId:
+          type: integer
+          example: 1
+        eventTypeId:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Consulta Médica"
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+          example: "CONFIRMED"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - eventTypeId
+        - startTime
+        - endTime
+
+    EventType:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Consulta Médica"
+        slug:
+          type: string
+          example: "consulta-medica"
+        description:
+          type: string
+          example: "Consulta médica de 30 minutos"
+        length:
+          type: integer
+          example: 30
+        schedulingType:
+          type: string
+          example: "ROUND_ROBIN"
+        active:
+          type: boolean
+          example: true
+        userId:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - length
+
+    Availability:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        userId:
+          type: integer
+          example: 1
+        scheduleId:
+          type: integer
+          example: 1
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        days:
+          type: array
+          items:
+            type: integer
+          example: [1, 2, 3, 4, 5]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - scheduleId
+        - startTime
+        - endTime
+
+    Schedule:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        userId:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Horário Comercial"
+        timeZone:
+          type: string
+          example: "America/Sao_Paulo"
+        availability:
+          type: object
+          example:
+            monday: [{"start": "09:00", "end": "17:00"}]
+            tuesday: [{"start": "09:00", "end": "17:00"}]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - name
+        - timeZone
+
+    Team:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Equipe Desenvolvimento"
+        slug:
+          type: string
+          example: "equipe-desenvolvimento"
+        logo:
+          type: string
+          example: "https://exemplo.com/logo.png"
+        bio:
+          type: string
+          example: "Equipe responsável pelo desenvolvimento"
+        hideBranding:
+          type: boolean
+          example: false
+        isPrivate:
+          type: boolean
+          example: false
+        metadata:
+          type: object
+          example:
+            department: "IT"
+            location: "São Paulo"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - slug
+
+    Membership:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        userId:
+          type: integer
+          example: 1
+        teamId:
+          type: integer
+          example: 1
+        role:
+          type: string
+          enum: [OWNER, ADMIN, MEMBER]
+          example: "ADMIN"
+        accepted:
+          type: boolean
+          example: true
+        user_name:
+          type: string
+          example: "João Silva"
+        user_email:
+          type: string
+          example: "joao@exemplo.com"
+        team_name:
+          type: string
+          example: "Equipe Desenvolvimento"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - teamId
+        - role
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 10
+        total:
+          type: integer
+          example: 100
+        totalPages:
+          type: integer
+          example: 10
+        hasNext:
+          type: boolean
+          example: true
+        hasPrev:
+          type: boolean
+          example: false
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Recurso não encontrado"
+        message:
+          type: string
+          example: "Detalhes do erro"
+        status:
+          type: integer
+          example: 404
+      required:
+        - error
+
+    Slot:
+      type: object
+      properties:
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+          example: 30
+        scheduleId:
+          type: integer
+          example: 1
+        scheduleName:
+          type: string
+          example: "Horário Comercial"
+        scheduleTimezone:
+          type: string
+          example: "America/Sao_Paulo"
+        availabilityId:
+          type: integer
+          example: 1
+      required:
+        - startTime
+        - endTime
+        - duration

@@ -1,0 +1,551 @@
+# Endpoints de Teams e Memberships para o Swagger
+# Este arquivo contém os endpoints adicionais que podem ser integrados ao swagger.yaml principal
+
+  /teams:
+    get:
+      tags:
+        - teams
+      summary: Listar teams
+      description: Lista todos os teams com filtros e paginação
+      parameters:
+        - name: page
+          in: query
+          description: Número da página
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Itens por página
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: name
+          in: query
+          description: Filtrar por nome do team
+          required: false
+          schema:
+            type: string
+        - name: slug
+          in: query
+          description: Filtrar por slug do team
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de teams
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  teams:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Team'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      tags:
+        - teams
+      summary: Criar team
+      description: Cria um novo team
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Equipe Desenvolvimento"
+                slug:
+                  type: string
+                  example: "equipe-desenvolvimento"
+                logo:
+                  type: string
+                  example: "https://exemplo.com/logo.png"
+                bio:
+                  type: string
+                  example: "Equipe responsável pelo desenvolvimento"
+                hideBranding:
+                  type: boolean
+                  example: false
+                isPrivate:
+                  type: boolean
+                  example: false
+                metadata:
+                  type: object
+                  example:
+                    department: "IT"
+                    location: "São Paulo"
+              required:
+                - name
+                - slug
+      responses:
+        '201':
+          description: Team criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Slug já existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /teams/{id}:
+    get:
+      tags:
+        - teams
+      summary: Buscar team por ID
+      description: Busca um team específico por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do team
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Team encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '404':
+          description: Team não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - teams
+      summary: Atualizar team
+      description: Atualiza um team existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do team
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Equipe Desenvolvimento Atualizada"
+                bio:
+                  type: string
+                  example: "Equipe responsável pelo desenvolvimento e inovação"
+                hideBranding:
+                  type: boolean
+                  example: true
+                metadata:
+                  type: object
+                  example:
+                    department: "IT"
+                    location: "São Paulo"
+                    size: "10"
+      responses:
+        '200':
+          description: Team atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '404':
+          description: Team não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - teams
+      summary: Deletar team
+      description: Deleta um team
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do team
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Team deletado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Team deletado com sucesso"
+                  team:
+                    $ref: '#/components/schemas/Team'
+        '404':
+          description: Team não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /teams/{id}/members:
+    get:
+      tags:
+        - teams
+      summary: Listar membros do team
+      description: Lista os membros de um team
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do team
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Número da página
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Itens por página
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: role
+          in: query
+          description: Filtrar por role
+          required: false
+          schema:
+            type: string
+            enum: [OWNER, ADMIN, MEMBER]
+      responses:
+        '200':
+          description: Lista de membros
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  team:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                  members:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Membership'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /memberships:
+    get:
+      tags:
+        - memberships
+      summary: Listar memberships
+      description: Lista todos os memberships com filtros e paginação
+      parameters:
+        - name: page
+          in: query
+          description: Número da página
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Itens por página
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: userId
+          in: query
+          description: Filtrar por ID do usuário
+          required: false
+          schema:
+            type: integer
+        - name: teamId
+          in: query
+          description: Filtrar por ID do team
+          required: false
+          schema:
+            type: integer
+        - name: role
+          in: query
+          description: Filtrar por role
+          required: false
+          schema:
+            type: string
+            enum: [OWNER, ADMIN, MEMBER]
+        - name: accepted
+          in: query
+          description: Filtrar por status de aceitação
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Lista de memberships
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  memberships:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Membership'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      tags:
+        - memberships
+      summary: Criar membership
+      description: Cria um novo membership
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  example: 1
+                teamId:
+                  type: integer
+                  example: 1
+                role:
+                  type: string
+                  enum: [OWNER, ADMIN, MEMBER]
+                  example: "MEMBER"
+                accepted:
+                  type: boolean
+                  example: false
+              required:
+                - userId
+                - teamId
+      responses:
+        '201':
+          description: Membership criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Membership'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Usuário ou team não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Usuário já é membro deste team
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /memberships/{id}:
+    get:
+      tags:
+        - memberships
+      summary: Buscar membership por ID
+      description: Busca um membership específico por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do membership
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Membership encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Membership'
+        '404':
+          description: Membership não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - memberships
+      summary: Atualizar membership
+      description: Atualiza um membership existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do membership
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum: [OWNER, ADMIN, MEMBER]
+                  example: "ADMIN"
+                accepted:
+                  type: boolean
+                  example: true
+      responses:
+        '200':
+          description: Membership atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Membership'
+        '404':
+          description: Membership não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - memberships
+      summary: Deletar membership
+      description: Deleta um membership
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do membership
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Membership deletado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Membership deletado com sucesso"
+                  membership:
+                    $ref: '#/components/schemas/Membership'
+        '404':
+          description: Membership não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /memberships/{id}/accept:
+    patch:
+      tags:
+        - memberships
+      summary: Aceitar convite de membership
+      description: Aceita um convite de membership
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do membership
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Convite aceito com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Convite aceito com sucesso"
+                  membership:
+                    $ref: '#/components/schemas/Membership'
+        '404':
+          description: Membership não encontrado ou já aceito
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /memberships/{id}/reject:
+    patch:
+      tags:
+        - memberships
+      summary: Rejeitar convite de membership
+      description: Rejeita um convite de membership
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do membership
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Convite rejeitado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Convite rejeitado com sucesso"
+                  membership:
+                    $ref: '#/components/schemas/Membership'
+        '404':
+          description: Membership não encontrado ou já aceito
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

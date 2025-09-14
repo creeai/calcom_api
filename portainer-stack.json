@@ -1,0 +1,159 @@
+{
+  "version": "3.7",
+  "services": {
+    "calcom-api": {
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile.production"
+      },
+      "hostname": "{{.Service.Name}}.{{.Task.Slot}}",
+      "networks": [
+        "network_swarm_public"
+      ],
+      "environment": [
+        "NODE_ENV=production",
+        "PORT=3000",
+        "HOST=0.0.0.0",
+        "API_URL=https://api-cal.felipeluismartins.com",
+        "DATABASE_URL=postgresql://postgres:lg3k5qtS37nBDTA@postgres:5432/calcom_pdv",
+        "DATABASE_DIRECT_URL=postgresql://postgres:lg3k5qtS37nBDTA@postgres:5432/calcom_pdv",
+        "BOOKING_ROUTE=/booking",
+        "EVENT_TYPE_ROUTE=/event-types",
+        "USER_ROUTE=/user",
+        "HEALTH_ROUTE=/health",
+        "ROOT_ROUTE=/"
+      ],
+      "deploy": {
+        "mode": "replicated",
+        "replicas": 1,
+        "placement": {
+          "constraints": [
+            "node.role == manager"
+          ]
+        },
+        "resources": {
+          "limits": {
+            "cpus": "0.5",
+            "memory": "512M"
+          },
+          "reservations": {
+            "cpus": "0.25",
+            "memory": "256M"
+          }
+        },
+        "labels": [
+          "traefik.enable=true",
+          "traefik.http.routers.calcom-api.rule=Host(`api-cal.felipeluismartins.com`)",
+          "traefik.http.routers.calcom-api.entrypoints=websecure",
+          "traefik.http.routers.calcom-api.tls.certresolver=letsencryptresolver",
+          "traefik.http.routers.calcom-api.service=calcom-api",
+          "traefik.http.services.calcom-api.loadbalancer.server.port=3000",
+          "traefik.http.services.calcom-api.loadbalancer.passHostHeader=true",
+          "traefik.http.middlewares.calcom-api-cors.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS",
+          "traefik.http.middlewares.calcom-api-cors.headers.accesscontrolallowheaders=Origin,X-Requested-With,Content-Type,Accept,Authorization",
+          "traefik.http.middlewares.calcom-api-cors.headers.accesscontrolalloworiginlist=*",
+          "traefik.http.routers.calcom-api.middlewares=calcom-api-cors"
+        ]
+      },
+      "depends_on": [
+        "postgres"
+      ],
+      "restart": "unless-stopped"
+    },
+    "postgres": {
+      "image": "postgres:15-alpine",
+      "hostname": "{{.Service.Name}}.{{.Task.Slot}}",
+      "networks": [
+        "network_swarm_public"
+      ],
+      "environment": [
+        "POSTGRES_DB=calcom_pdv",
+        "POSTGRES_USER=postgres",
+        "POSTGRES_PASSWORD=lg3k5qtS37nBDTA",
+        "POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+      ],
+      "deploy": {
+        "mode": "replicated",
+        "replicas": 1,
+        "placement": {
+          "constraints": [
+            "node.role == manager"
+          ]
+        },
+        "resources": {
+          "limits": {
+            "cpus": "1",
+            "memory": "1024M"
+          },
+          "reservations": {
+            "cpus": "0.5",
+            "memory": "512M"
+          }
+        },
+        "labels": [
+          "traefik.enable=false"
+        ]
+      },
+      "volumes": [
+        "postgres_data:/var/lib/postgresql/data",
+        "./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro"
+      ],
+      "restart": "unless-stopped"
+    },
+    "pgadmin": {
+      "image": "dpage/pgadmin4:latest",
+      "hostname": "{{.Service.Name}}.{{.Task.Slot}}",
+      "networks": [
+        "network_swarm_public"
+      ],
+      "environment": [
+        "PGADMIN_DEFAULT_EMAIL=admin@felipeluismartins.com",
+        "PGADMIN_DEFAULT_PASSWORD=admin123",
+        "PGADMIN_CONFIG_SERVER_MODE=False"
+      ],
+      "deploy": {
+        "mode": "replicated",
+        "replicas": 1,
+        "placement": {
+          "constraints": [
+            "node.role == manager"
+          ]
+        },
+        "resources": {
+          "limits": {
+            "cpus": "0.5",
+            "memory": "512M"
+          },
+          "reservations": {
+            "cpus": "0.25",
+            "memory": "256M"
+          }
+        },
+        "labels": [
+          "traefik.enable=true",
+          "traefik.http.routers.pgadmin.rule=Host(`pgadmin.felipeluismartins.com`)",
+          "traefik.http.routers.pgadmin.entrypoints=websecure",
+          "traefik.http.routers.pgadmin.tls.certresolver=letsencryptresolver",
+          "traefik.http.routers.pgadmin.service=pgadmin",
+          "traefik.http.services.pgadmin.loadbalancer.server.port=80",
+          "traefik.http.services.pgadmin.loadbalancer.passHostHeader=true"
+        ]
+      },
+      "depends_on": [
+        "postgres"
+      ],
+      "restart": "unless-stopped"
+    }
+  },
+  "volumes": {
+    "postgres_data": {
+      "driver": "local"
+    }
+  },
+  "networks": {
+    "network_swarm_public": {
+      "name": "network_swarm_public",
+      "external": true
+    }
+  }
+}

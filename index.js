@@ -79,11 +79,21 @@ app.get('/', (req, res) => {
       health: `${baseUrl}${redirectInfo.customRoutes.health}`
     },
     examples: {
+      // Usuários
+      getAllUsers: `GET ${baseUrl}${redirectInfo.customRoutes.users}`,
+      getUserById: `GET ${baseUrl}${redirectInfo.customRoutes.users}/1`,
+      getUserByEmail: `GET ${baseUrl}${redirectInfo.customRoutes.users}/email/usuario@exemplo.com`,
+      createUser: `POST ${baseUrl}${redirectInfo.customRoutes.users}`,
+      updateUser: `PUT ${baseUrl}${redirectInfo.customRoutes.users}/1`,
+      deleteUser: `DELETE ${baseUrl}${redirectInfo.customRoutes.users}/1`,
+      
+      // Agendamentos
       getBookings: `GET ${baseUrl}${redirectInfo.customRoutes.booking}/user/1`,
       createBooking: `POST ${baseUrl}${redirectInfo.customRoutes.booking}`,
+      
+      // Tipos de Eventos
       getEventTypes: `GET ${baseUrl}${redirectInfo.customRoutes.eventTypes}`,
-      getEventTypeById: `GET ${baseUrl}${redirectInfo.customRoutes.eventTypes}/1`,
-      getUser: `GET ${baseUrl}${redirectInfo.customRoutes.users}/1`
+      getEventTypeById: `GET ${baseUrl}${redirectInfo.customRoutes.eventTypes}/1`
     },
     environmentVariables: {
       BOOKING_ROUTE: process.env.BOOKING_ROUTE || '/booking',

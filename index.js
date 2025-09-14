@@ -6,11 +6,16 @@ const bookingsRouter = require('./routes/bookings');
 const eventTypesRouter = require('./routes/eventTypes');
 const db = require('./db');
 const { subdomainMiddleware } = require('./middleware/subdomain');
+const { redirectMiddleware, redirectInfoMiddleware } = require('./middleware/redirect');
 
 app.use(express.json());
 
 // Middleware para subdomínios (apenas para informações)
 app.use(subdomainMiddleware);
+
+// Middleware para redirecionamento de rotas
+app.use(redirectMiddleware);
+app.use(redirectInfoMiddleware);
 
 // Middleware de debug para ver as rotas
 app.use((req, res, next) => {
@@ -58,6 +63,7 @@ app.get('/health', async (req, res) => {
 // Rota raiz
 app.get('/', (req, res) => {
   const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const redirectInfo = res.locals.redirectInfo;
   
   res.json({
     message: 'Cal.com API - Sistema de Agendamentos',
@@ -65,17 +71,26 @@ app.get('/', (req, res) => {
     host: req.get('host'),
     subdomain: req.subdomain,
     baseUrl: baseUrl,
+    customRoutes: redirectInfo.customRoutes,
     endpoints: {
-      users: `${baseUrl}/users`,
-      bookings: `${baseUrl}/bookings`,
-      eventTypes: `${baseUrl}/event-types`,
-      health: `${baseUrl}/health`
+      users: `${baseUrl}${redirectInfo.customRoutes.users}`,
+      bookings: `${baseUrl}${redirectInfo.customRoutes.booking}`,
+      eventTypes: `${baseUrl}${redirectInfo.customRoutes.eventTypes}`,
+      health: `${baseUrl}${redirectInfo.customRoutes.health}`
     },
     examples: {
-      getBookings: `GET ${baseUrl}/bookings/user/1`,
-      createBooking: `POST ${baseUrl}/bookings`,
-      getEventTypes: `GET ${baseUrl}/event-types`,
-      getUser: `GET ${baseUrl}/users/1`
+      getBookings: `GET ${baseUrl}${redirectInfo.customRoutes.booking}/user/1`,
+      createBooking: `POST ${baseUrl}${redirectInfo.customRoutes.booking}`,
+      getEventTypes: `GET ${baseUrl}${redirectInfo.customRoutes.eventTypes}`,
+      getEventTypeById: `GET ${baseUrl}${redirectInfo.customRoutes.eventTypes}/1`,
+      getUser: `GET ${baseUrl}${redirectInfo.customRoutes.users}/1`
+    },
+    environmentVariables: {
+      BOOKING_ROUTE: process.env.BOOKING_ROUTE || '/booking',
+      EVENT_TYPE_ROUTE: process.env.EVENT_TYPE_ROUTE || '/event-types',
+      USER_ROUTE: process.env.USER_ROUTE || '/user',
+      HEALTH_ROUTE: process.env.HEALTH_ROUTE || '/health',
+      ROOT_ROUTE: process.env.ROOT_ROUTE || '/'
     }
   });
 });

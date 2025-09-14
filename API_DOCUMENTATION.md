@@ -945,6 +945,1115 @@ GET /availability/user/1/available-slots?date=2024-01-15&duration=30
 
 ---
 
+## 📅 **Schedules (Horários)**
+
+### **GET** `/schedules`
+Lista todos os schedules com filtros e paginação.
+
+**Parâmetros de Query:**
+- `page` (opcional): Número da página (padrão: 1)
+- `limit` (opcional): Itens por página (padrão: 10)
+- `userId` (opcional): Filtrar por ID do usuário
+- `name` (opcional): Filtrar por nome do schedule
+- `timeZone` (opcional): Filtrar por timezone
+- `sortBy` (opcional): Campo para ordenação (id, userId, name, timeZone, created_at, updated_at)
+- `sortOrder` (opcional): Ordem (ASC ou DESC)
+
+**Exemplo:**
+```bash
+GET /schedules?page=1&limit=10&userId=1&name=Horário%20Comercial&sortBy=name&sortOrder=ASC
+```
+
+**Resposta:**
+```json
+{
+  "schedules": [
+    {
+      "id": 1,
+      "userId": 1,
+      "name": "Horário Comercial",
+      "timeZone": "America/Sao_Paulo",
+      "availability": {
+        "monday": [{"start": "09:00", "end": "17:00"}],
+        "tuesday": [{"start": "09:00", "end": "17:00"}],
+        "wednesday": [{"start": "09:00", "end": "17:00"}],
+        "thursday": [{"start": "09:00", "end": "17:00"}],
+        "friday": [{"start": "09:00", "end": "17:00"}]
+      },
+      "created_at": "2024-01-15T10:00:00.000Z",
+      "updated_at": "2024-01-15T10:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 5,
+    "totalPages": 1,
+    "hasNext": false,
+    "hasPrev": false
+  },
+  "filters": {
+    "userId": "1",
+    "name": "Horário Comercial",
+    "timeZone": null,
+    "sortBy": "name",
+    "sortOrder": "ASC"
+  }
+}
+```
+
+### **GET** `/schedules/user/{userId}`
+Lista todos os schedules de um usuário específico.
+
+**Parâmetros:**
+- `userId` (integer): ID do usuário
+
+**Parâmetros de Query:**
+- `name` (opcional): Filtrar por nome do schedule
+- `timeZone` (opcional): Filtrar por timezone
+
+**Exemplo:**
+```bash
+GET /schedules/user/1?name=Horário%20Comercial&timeZone=America/Sao_Paulo
+```
+
+**Resposta:**
+```json
+[
+  {
+    "id": 1,
+    "userId": 1,
+    "name": "Horário Comercial",
+    "timeZone": "America/Sao_Paulo",
+    "availability": {
+      "monday": [{"start": "09:00", "end": "17:00"}],
+      "tuesday": [{"start": "09:00", "end": "17:00"}],
+      "wednesday": [{"start": "09:00", "end": "17:00"}],
+      "thursday": [{"start": "09:00", "end": "17:00"}],
+      "friday": [{"start": "09:00", "end": "17:00"}]
+    },
+    "created_at": "2024-01-15T10:00:00.000Z",
+    "updated_at": "2024-01-15T10:00:00.000Z"
+  }
+]
+```
+
+### **GET** `/schedules/{id}`
+Busca um schedule específico por ID.
+
+**Parâmetros:**
+- `id` (integer): ID do schedule
+
+**Exemplo:**
+```bash
+GET /schedules/1
+```
+
+**Resposta de Sucesso (200):**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "name": "Horário Comercial",
+  "timeZone": "America/Sao_Paulo",
+  "availability": {
+    "monday": [{"start": "09:00", "end": "17:00"}],
+    "tuesday": [{"start": "09:00", "end": "17:00"}],
+    "wednesday": [{"start": "09:00", "end": "17:00"}],
+    "thursday": [{"start": "09:00", "end": "17:00"}],
+    "friday": [{"start": "09:00", "end": "17:00"}]
+  },
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "updated_at": "2024-01-15T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (404):**
+```json
+{
+  "error": "Schedule não encontrado"
+}
+```
+
+### **POST** `/schedules`
+Cria um novo schedule.
+
+**Body:**
+```json
+{
+  "userId": 1,
+  "name": "Horário Comercial",
+  "timeZone": "America/Sao_Paulo",
+  "availability": {
+    "monday": [{"start": "09:00", "end": "17:00"}],
+    "tuesday": [{"start": "09:00", "end": "17:00"}],
+    "wednesday": [{"start": "09:00", "end": "17:00"}],
+    "thursday": [{"start": "09:00", "end": "17:00"}],
+    "friday": [{"start": "09:00", "end": "17:00"}]
+  }
+}
+```
+
+**Resposta de Sucesso (201):**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "name": "Horário Comercial",
+  "timeZone": "America/Sao_Paulo",
+  "availability": {
+    "monday": [{"start": "09:00", "end": "17:00"}],
+    "tuesday": [{"start": "09:00", "end": "17:00"}],
+    "wednesday": [{"start": "09:00", "end": "17:00"}],
+    "thursday": [{"start": "09:00", "end": "17:00"}],
+    "friday": [{"start": "09:00", "end": "17:00"}]
+  },
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "updated_at": "2024-01-15T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (400):**
+```json
+{
+  "error": "userId, name e timeZone são obrigatórios"
+}
+```
+
+### **PUT** `/schedules/{id}`
+Atualiza um schedule existente.
+
+**Parâmetros:**
+- `id` (integer): ID do schedule
+
+**Body:**
+```json
+{
+  "name": "Horário Estendido",
+  "timeZone": "America/Sao_Paulo",
+  "availability": {
+    "monday": [{"start": "08:00", "end": "18:00"}],
+    "tuesday": [{"start": "08:00", "end": "18:00"}],
+    "wednesday": [{"start": "08:00", "end": "18:00"}],
+    "thursday": [{"start": "08:00", "end": "18:00"}],
+    "friday": [{"start": "08:00", "end": "18:00"}]
+  }
+}
+```
+
+**Resposta de Sucesso (200):**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "name": "Horário Estendido",
+  "timeZone": "America/Sao_Paulo",
+  "availability": {
+    "monday": [{"start": "08:00", "end": "18:00"}],
+    "tuesday": [{"start": "08:00", "end": "18:00"}],
+    "wednesday": [{"start": "08:00", "end": "18:00"}],
+    "thursday": [{"start": "08:00", "end": "18:00"}],
+    "friday": [{"start": "08:00", "end": "18:00"}]
+  },
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "updated_at": "2024-01-15T10:30:00.000Z"
+}
+```
+
+### **DELETE** `/schedules/{id}`
+Deleta um schedule.
+
+**Parâmetros:**
+- `id` (integer): ID do schedule
+
+**Exemplo:**
+```bash
+DELETE /schedules/1
+```
+
+**Resposta de Sucesso (200):**
+```json
+{
+  "message": "Schedule deletado com sucesso",
+  "schedule": {
+    "id": 1,
+    "userId": 1,
+    "name": "Horário Comercial",
+    "timeZone": "America/Sao_Paulo",
+    "availability": {
+      "monday": [{"start": "09:00", "end": "17:00"}],
+      "tuesday": [{"start": "09:00", "end": "17:00"}],
+      "wednesday": [{"start": "09:00", "end": "17:00"}],
+      "thursday": [{"start": "09:00", "end": "17:00"}],
+      "friday": [{"start": "09:00", "end": "17:00"}]
+    },
+    "created_at": "2024-01-15T10:00:00.000Z",
+    "updated_at": "2024-01-15T10:00:00.000Z"
+  }
+}
+```
+
+### **GET** `/schedules/{id}/availability`
+Obtém a disponibilidade de um schedule específico.
+
+**Parâmetros:**
+- `id` (integer): ID do schedule
+
+**Exemplo:**
+```bash
+GET /schedules/1/availability
+```
+
+**Resposta:**
+```json
+{
+  "scheduleId": 1,
+  "scheduleName": "Horário Comercial",
+  "timeZone": "America/Sao_Paulo",
+  "availability": {
+    "monday": [{"start": "09:00", "end": "17:00"}],
+    "tuesday": [{"start": "09:00", "end": "17:00"}],
+    "wednesday": [{"start": "09:00", "end": "17:00"}],
+    "thursday": [{"start": "09:00", "end": "17:00"}],
+    "friday": [{"start": "09:00", "end": "17:00"}]
+  }
+}
+```
+
+### **PUT** `/schedules/{id}/availability`
+Atualiza a disponibilidade de um schedule específico.
+
+**Parâmetros:**
+- `id` (integer): ID do schedule
+
+**Body:**
+```json
+{
+  "availability": {
+    "monday": [{"start": "08:00", "end": "18:00"}],
+    "tuesday": [{"start": "08:00", "end": "18:00"}],
+    "wednesday": [{"start": "08:00", "end": "18:00"}],
+    "thursday": [{"start": "08:00", "end": "18:00"}],
+    "friday": [{"start": "08:00", "end": "18:00"}]
+  }
+}
+```
+
+**Resposta:**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "name": "Horário Comercial",
+  "timeZone": "America/Sao_Paulo",
+  "availability": {
+    "monday": [{"start": "08:00", "end": "18:00"}],
+    "tuesday": [{"start": "08:00", "end": "18:00"}],
+    "wednesday": [{"start": "08:00", "end": "18:00"}],
+    "thursday": [{"start": "08:00", "end": "18:00"}],
+    "friday": [{"start": "08:00", "end": "18:00"}]
+  },
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "updated_at": "2024-01-15T10:30:00.000Z"
+}
+```
+
+---
+
+## ⏰ **Slots (Horários Disponíveis)**
+
+### **GET** `/slots`
+Obtém todos os slots disponíveis entre um período.
+
+**Parâmetros de Query:**
+- `startTime` (obrigatório): Data/hora de início (formato ISO 8601)
+- `endTime` (obrigatório): Data/hora de fim (formato ISO 8601)
+- `userId` (opcional): Filtrar por ID do usuário
+- `eventTypeId` (opcional): Filtrar por ID do tipo de evento
+- `timeZone` (opcional): Timezone (padrão: UTC)
+
+**Exemplo:**
+```bash
+GET /slots?startTime=2024-01-15T09:00:00Z&endTime=2024-01-15T17:00:00Z&userId=1&eventTypeId=1&timeZone=America/Sao_Paulo
+```
+
+**Resposta:**
+```json
+{
+  "slots": [
+    {
+      "startTime": "2024-01-15T09:00:00.000Z",
+      "endTime": "2024-01-15T09:30:00.000Z",
+      "duration": 30,
+      "scheduleId": 1,
+      "scheduleName": "Horário Comercial",
+      "scheduleTimezone": "America/Sao_Paulo",
+      "availabilityId": 1
+    },
+    {
+      "startTime": "2024-01-15T09:30:00.000Z",
+      "endTime": "2024-01-15T10:00:00.000Z",
+      "duration": 30,
+      "scheduleId": 1,
+      "scheduleName": "Horário Comercial",
+      "scheduleTimezone": "America/Sao_Paulo",
+      "availabilityId": 1
+    }
+  ],
+  "totalSlots": 16,
+  "period": {
+    "startTime": "2024-01-15T09:00:00Z",
+    "endTime": "2024-01-15T17:00:00Z",
+    "timeZone": "America/Sao_Paulo"
+  },
+  "filters": {
+    "userId": "1",
+    "eventTypeId": "1"
+  }
+}
+```
+
+### **GET** `/slots/user/{userId}`
+Obtém slots disponíveis para um usuário específico.
+
+**Parâmetros:**
+- `userId` (integer): ID do usuário
+
+**Parâmetros de Query:**
+- `startTime` (obrigatório): Data/hora de início
+- `endTime` (obrigatório): Data/hora de fim
+- `eventTypeId` (opcional): Filtrar por ID do tipo de evento
+- `timeZone` (opcional): Timezone (padrão: UTC)
+
+**Exemplo:**
+```bash
+GET /slots/user/1?startTime=2024-01-15T09:00:00Z&endTime=2024-01-15T17:00:00Z&eventTypeId=1
+```
+
+**Resposta:**
+```json
+{
+  "userId": 1,
+  "slots": [
+    {
+      "startTime": "2024-01-15T09:00:00.000Z",
+      "endTime": "2024-01-15T09:30:00.000Z",
+      "duration": 30,
+      "scheduleId": 1,
+      "scheduleName": "Horário Comercial",
+      "scheduleTimezone": "America/Sao_Paulo",
+      "availabilityId": 1
+    }
+  ],
+  "totalSlots": 16,
+  "period": {
+    "startTime": "2024-01-15T09:00:00Z",
+    "endTime": "2024-01-15T17:00:00Z",
+    "timeZone": "UTC"
+  },
+  "filters": {
+    "eventTypeId": "1"
+  }
+}
+```
+
+### **GET** `/slots/event-type/{eventTypeId}`
+Obtém slots disponíveis para um tipo de evento específico.
+
+**Parâmetros:**
+- `eventTypeId` (integer): ID do tipo de evento
+
+**Parâmetros de Query:**
+- `startTime` (obrigatório): Data/hora de início
+- `endTime` (obrigatório): Data/hora de fim
+- `timeZone` (opcional): Timezone (padrão: UTC)
+
+**Exemplo:**
+```bash
+GET /slots/event-type/1?startTime=2024-01-15T09:00:00Z&endTime=2024-01-15T17:00:00Z
+```
+
+**Resposta:**
+```json
+{
+  "eventType": {
+    "id": 1,
+    "title": "Consulta Médica",
+    "duration": 30
+  },
+  "slots": [
+    {
+      "startTime": "2024-01-15T09:00:00.000Z",
+      "endTime": "2024-01-15T09:30:00.000Z",
+      "duration": 30,
+      "eventTypeId": 1,
+      "eventTypeTitle": "Consulta Médica",
+      "scheduleId": 1,
+      "scheduleName": "Horário Comercial",
+      "scheduleTimezone": "America/Sao_Paulo",
+      "availabilityId": 1
+    }
+  ],
+  "totalSlots": 16,
+  "period": {
+    "startTime": "2024-01-15T09:00:00Z",
+    "endTime": "2024-01-15T17:00:00Z",
+    "timeZone": "UTC"
+  }
+}
+```
+
+**Resposta de Erro (400):**
+```json
+{
+  "error": "startTime e endTime são obrigatórios"
+}
+```
+
+**Resposta de Erro (404):**
+```json
+{
+  "error": "Tipo de evento não encontrado ou sem disponibilidade"
+}
+```
+
+---
+
+## 👥 **Teams (Equipes)**
+
+### **GET** `/teams`
+Lista todos os teams com filtros e paginação.
+
+**Parâmetros de Query:**
+- `page` (opcional): Número da página (padrão: 1)
+- `limit` (opcional): Itens por página (padrão: 10)
+- `name` (opcional): Filtrar por nome do team
+- `slug` (opcional): Filtrar por slug do team
+- `sortBy` (opcional): Campo para ordenação (id, name, slug, created_at, updated_at)
+- `sortOrder` (opcional): Ordem (ASC ou DESC)
+
+**Exemplo:**
+```bash
+GET /teams?page=1&limit=10&name=Equipe%20Desenvolvimento&sortBy=name&sortOrder=ASC
+```
+
+**Resposta:**
+```json
+{
+  "teams": [
+    {
+      "id": 1,
+      "name": "Equipe Desenvolvimento",
+      "slug": "equipe-desenvolvimento",
+      "logo": "https://exemplo.com/logo.png",
+      "bio": "Equipe responsável pelo desenvolvimento de software",
+      "hideBranding": false,
+      "isPrivate": false,
+      "metadata": {
+        "department": "IT",
+        "location": "São Paulo"
+      },
+      "created_at": "2024-01-15T10:00:00.000Z",
+      "updated_at": "2024-01-15T10:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 5,
+    "totalPages": 1,
+    "hasNext": false,
+    "hasPrev": false
+  },
+  "filters": {
+    "name": "Equipe Desenvolvimento",
+    "slug": null,
+    "sortBy": "name",
+    "sortOrder": "ASC"
+  }
+}
+```
+
+### **GET** `/teams/{id}`
+Busca um team específico por ID.
+
+**Parâmetros:**
+- `id` (integer): ID do team
+
+**Exemplo:**
+```bash
+GET /teams/1
+```
+
+**Resposta de Sucesso (200):**
+```json
+{
+  "id": 1,
+  "name": "Equipe Desenvolvimento",
+  "slug": "equipe-desenvolvimento",
+  "logo": "https://exemplo.com/logo.png",
+  "bio": "Equipe responsável pelo desenvolvimento de software",
+  "hideBranding": false,
+  "isPrivate": false,
+  "metadata": {
+    "department": "IT",
+    "location": "São Paulo"
+  },
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "updated_at": "2024-01-15T10:00:00.000Z"
+}
+```
+
+### **GET** `/teams/slug/{slug}`
+Busca um team por slug.
+
+**Parâmetros:**
+- `slug` (string): Slug do team
+
+**Exemplo:**
+```bash
+GET /teams/slug/equipe-desenvolvimento
+```
+
+**Resposta:**
+```json
+{
+  "id": 1,
+  "name": "Equipe Desenvolvimento",
+  "slug": "equipe-desenvolvimento",
+  "logo": "https://exemplo.com/logo.png",
+  "bio": "Equipe responsável pelo desenvolvimento de software",
+  "hideBranding": false,
+  "isPrivate": false,
+  "metadata": {
+    "department": "IT",
+    "location": "São Paulo"
+  },
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "updated_at": "2024-01-15T10:00:00.000Z"
+}
+```
+
+### **POST** `/teams`
+Cria um novo team.
+
+**Body:**
+```json
+{
+  "name": "Equipe Desenvolvimento",
+  "slug": "equipe-desenvolvimento",
+  "logo": "https://exemplo.com/logo.png",
+  "bio": "Equipe responsável pelo desenvolvimento de software",
+  "hideBranding": false,
+  "isPrivate": false,
+  "metadata": {
+    "department": "IT",
+    "location": "São Paulo"
+  }
+}
+```
+
+**Resposta de Sucesso (201):**
+```json
+{
+  "id": 1,
+  "name": "Equipe Desenvolvimento",
+  "slug": "equipe-desenvolvimento",
+  "logo": "https://exemplo.com/logo.png",
+  "bio": "Equipe responsável pelo desenvolvimento de software",
+  "hideBranding": false,
+  "isPrivate": false,
+  "metadata": {
+    "department": "IT",
+    "location": "São Paulo"
+  },
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "updated_at": "2024-01-15T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (400):**
+```json
+{
+  "error": "name e slug são obrigatórios"
+}
+```
+
+**Resposta de Erro (409):**
+```json
+{
+  "error": "Slug já existe"
+}
+```
+
+### **PUT** `/teams/{id}`
+Atualiza um team existente.
+
+**Parâmetros:**
+- `id` (integer): ID do team
+
+**Body:**
+```json
+{
+  "name": "Equipe Desenvolvimento Atualizada",
+  "bio": "Equipe responsável pelo desenvolvimento de software e inovação",
+  "hideBranding": true,
+  "metadata": {
+    "department": "IT",
+    "location": "São Paulo",
+    "size": "10"
+  }
+}
+```
+
+**Resposta de Sucesso (200):**
+```json
+{
+  "id": 1,
+  "name": "Equipe Desenvolvimento Atualizada",
+  "slug": "equipe-desenvolvimento",
+  "logo": "https://exemplo.com/logo.png",
+  "bio": "Equipe responsável pelo desenvolvimento de software e inovação",
+  "hideBranding": true,
+  "isPrivate": false,
+  "metadata": {
+    "department": "IT",
+    "location": "São Paulo",
+    "size": "10"
+  },
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "updated_at": "2024-01-15T10:30:00.000Z"
+}
+```
+
+### **DELETE** `/teams/{id}`
+Deleta um team.
+
+**Parâmetros:**
+- `id` (integer): ID do team
+
+**Exemplo:**
+```bash
+DELETE /teams/1
+```
+
+**Resposta de Sucesso (200):**
+```json
+{
+  "message": "Team deletado com sucesso",
+  "team": {
+    "id": 1,
+    "name": "Equipe Desenvolvimento",
+    "slug": "equipe-desenvolvimento",
+    "logo": "https://exemplo.com/logo.png",
+    "bio": "Equipe responsável pelo desenvolvimento de software",
+    "hideBranding": false,
+    "isPrivate": false,
+    "metadata": {
+      "department": "IT",
+      "location": "São Paulo"
+    },
+    "created_at": "2024-01-15T10:00:00.000Z",
+    "updated_at": "2024-01-15T10:00:00.000Z"
+  }
+}
+```
+
+### **GET** `/teams/{id}/members`
+Lista os membros de um team.
+
+**Parâmetros:**
+- `id` (integer): ID do team
+
+**Parâmetros de Query:**
+- `page` (opcional): Número da página (padrão: 1)
+- `limit` (opcional): Itens por página (padrão: 10)
+- `role` (opcional): Filtrar por role (OWNER, ADMIN, MEMBER)
+
+**Exemplo:**
+```bash
+GET /teams/1/members?page=1&limit=10&role=ADMIN
+```
+
+**Resposta:**
+```json
+{
+  "team": {
+    "id": 1,
+    "name": "Equipe Desenvolvimento"
+  },
+  "members": [
+    {
+      "id": 1,
+      "userId": 1,
+      "teamId": 1,
+      "role": "ADMIN",
+      "accepted": true,
+      "created_at": "2024-01-15T10:00:00.000Z",
+      "updated_at": "2024-01-15T10:00:00.000Z",
+      "user_name": "João Silva",
+      "user_email": "joao@exemplo.com",
+      "user_username": "joao.silva",
+      "team_name": "Equipe Desenvolvimento",
+      "team_slug": "equipe-desenvolvimento"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 5,
+    "totalPages": 1,
+    "hasNext": false,
+    "hasPrev": false
+  },
+  "filters": {
+    "role": "ADMIN"
+  }
+}
+```
+
+### **GET** `/teams/{id}/event-types`
+Lista os tipos de eventos de um team.
+
+**Parâmetros:**
+- `id` (integer): ID do team
+
+**Parâmetros de Query:**
+- `page` (opcional): Número da página (padrão: 1)
+- `limit` (opcional): Itens por página (padrão: 10)
+- `active` (opcional): Filtrar por status ativo (true/false)
+
+**Exemplo:**
+```bash
+GET /teams/1/event-types?page=1&limit=10&active=true
+```
+
+**Resposta:**
+```json
+{
+  "team": {
+    "id": 1,
+    "name": "Equipe Desenvolvimento"
+  },
+  "eventTypes": [
+    {
+      "id": 1,
+      "title": "Reunião de Equipe",
+      "slug": "reuniao-equipe",
+      "description": "Reunião semanal da equipe de desenvolvimento",
+      "length": 60,
+      "schedulingType": "ROUND_ROBIN",
+      "active": true,
+      "teamId": 1,
+      "created_at": "2024-01-15T10:00:00.000Z",
+      "updated_at": "2024-01-15T10:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 3,
+    "totalPages": 1,
+    "hasNext": false,
+    "hasPrev": false
+  },
+  "filters": {
+    "active": true
+  }
+}
+```
+
+---
+
+## 👤 **Memberships (Membros)**
+
+### **GET** `/memberships`
+Lista todos os memberships com filtros e paginação.
+
+**Parâmetros de Query:**
+- `page` (opcional): Número da página (padrão: 1)
+- `limit` (opcional): Itens por página (padrão: 10)
+- `userId` (opcional): Filtrar por ID do usuário
+- `teamId` (opcional): Filtrar por ID do team
+- `role` (opcional): Filtrar por role (OWNER, ADMIN, MEMBER)
+- `accepted` (opcional): Filtrar por status de aceitação (true/false)
+- `sortBy` (opcional): Campo para ordenação (id, userId, teamId, role, accepted, created_at, updated_at)
+- `sortOrder` (opcional): Ordem (ASC ou DESC)
+
+**Exemplo:**
+```bash
+GET /memberships?page=1&limit=10&userId=1&role=ADMIN&accepted=true&sortBy=created_at&sortOrder=DESC
+```
+
+**Resposta:**
+```json
+{
+  "memberships": [
+    {
+      "id": 1,
+      "userId": 1,
+      "teamId": 1,
+      "role": "ADMIN",
+      "accepted": true,
+      "created_at": "2024-01-15T10:00:00.000Z",
+      "updated_at": "2024-01-15T10:00:00.000Z",
+      "user_name": "João Silva",
+      "user_email": "joao@exemplo.com",
+      "user_username": "joao.silva",
+      "team_name": "Equipe Desenvolvimento",
+      "team_slug": "equipe-desenvolvimento"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 5,
+    "totalPages": 1,
+    "hasNext": false,
+    "hasPrev": false
+  },
+  "filters": {
+    "userId": "1",
+    "teamId": null,
+    "role": "ADMIN",
+    "accepted": true,
+    "sortBy": "created_at",
+    "sortOrder": "DESC"
+  }
+}
+```
+
+### **GET** `/memberships/{id}`
+Busca um membership específico por ID.
+
+**Parâmetros:**
+- `id` (integer): ID do membership
+
+**Exemplo:**
+```bash
+GET /memberships/1
+```
+
+**Resposta de Sucesso (200):**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "teamId": 1,
+  "role": "ADMIN",
+  "accepted": true,
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "updated_at": "2024-01-15T10:00:00.000Z",
+  "user_name": "João Silva",
+  "user_email": "joao@exemplo.com",
+  "user_username": "joao.silva",
+  "team_name": "Equipe Desenvolvimento",
+  "team_slug": "equipe-desenvolvimento"
+}
+```
+
+### **GET** `/memberships/user/{userId}/team/{teamId}`
+Busca um membership por userId e teamId.
+
+**Parâmetros:**
+- `userId` (integer): ID do usuário
+- `teamId` (integer): ID do team
+
+**Exemplo:**
+```bash
+GET /memberships/user/1/team/1
+```
+
+**Resposta:**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "teamId": 1,
+  "role": "ADMIN",
+  "accepted": true,
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "updated_at": "2024-01-15T10:00:00.000Z",
+  "user_name": "João Silva",
+  "user_email": "joao@exemplo.com",
+  "user_username": "joao.silva",
+  "team_name": "Equipe Desenvolvimento",
+  "team_slug": "equipe-desenvolvimento"
+}
+```
+
+### **POST** `/memberships`
+Cria um novo membership.
+
+**Body:**
+```json
+{
+  "userId": 1,
+  "teamId": 1,
+  "role": "MEMBER",
+  "accepted": false
+}
+```
+
+**Resposta de Sucesso (201):**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "teamId": 1,
+  "role": "MEMBER",
+  "accepted": false,
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "updated_at": "2024-01-15T10:00:00.000Z",
+  "user_name": "João Silva",
+  "user_email": "joao@exemplo.com",
+  "user_username": "joao.silva",
+  "team_name": "Equipe Desenvolvimento",
+  "team_slug": "equipe-desenvolvimento"
+}
+```
+
+**Resposta de Erro (400):**
+```json
+{
+  "error": "userId e teamId são obrigatórios"
+}
+```
+
+**Resposta de Erro (404):**
+```json
+{
+  "error": "Usuário não encontrado"
+}
+```
+
+**Resposta de Erro (409):**
+```json
+{
+  "error": "Usuário já é membro deste team"
+}
+```
+
+### **PUT** `/memberships/{id}`
+Atualiza um membership existente.
+
+**Parâmetros:**
+- `id` (integer): ID do membership
+
+**Body:**
+```json
+{
+  "role": "ADMIN",
+  "accepted": true
+}
+```
+
+**Resposta de Sucesso (200):**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "teamId": 1,
+  "role": "ADMIN",
+  "accepted": true,
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "updated_at": "2024-01-15T10:30:00.000Z",
+  "user_name": "João Silva",
+  "user_email": "joao@exemplo.com",
+  "user_username": "joao.silva",
+  "team_name": "Equipe Desenvolvimento",
+  "team_slug": "equipe-desenvolvimento"
+}
+```
+
+### **DELETE** `/memberships/{id}`
+Deleta um membership.
+
+**Parâmetros:**
+- `id` (integer): ID do membership
+
+**Exemplo:**
+```bash
+DELETE /memberships/1
+```
+
+**Resposta de Sucesso (200):**
+```json
+{
+  "message": "Membership deletado com sucesso",
+  "membership": {
+    "id": 1,
+    "userId": 1,
+    "teamId": 1,
+    "role": "ADMIN",
+    "accepted": true,
+    "created_at": "2024-01-15T10:00:00.000Z",
+    "updated_at": "2024-01-15T10:00:00.000Z"
+  }
+}
+```
+
+### **PATCH** `/memberships/{id}/accept`
+Aceita um convite de membership.
+
+**Parâmetros:**
+- `id` (integer): ID do membership
+
+**Exemplo:**
+```bash
+PATCH /memberships/1/accept
+```
+
+**Resposta de Sucesso (200):**
+```json
+{
+  "message": "Convite aceito com sucesso",
+  "membership": {
+    "id": 1,
+    "userId": 1,
+    "teamId": 1,
+    "role": "MEMBER",
+    "accepted": true,
+    "created_at": "2024-01-15T10:00:00.000Z",
+    "updated_at": "2024-01-15T10:30:00.000Z",
+    "user_name": "João Silva",
+    "user_email": "joao@exemplo.com",
+    "user_username": "joao.silva",
+    "team_name": "Equipe Desenvolvimento",
+    "team_slug": "equipe-desenvolvimento"
+  }
+}
+```
+
+### **PATCH** `/memberships/{id}/reject`
+Rejeita um convite de membership.
+
+**Parâmetros:**
+- `id` (integer): ID do membership
+
+**Exemplo:**
+```bash
+PATCH /memberships/1/reject
+```
+
+**Resposta de Sucesso (200):**
+```json
+{
+  "message": "Convite rejeitado com sucesso",
+  "membership": {
+    "id": 1,
+    "userId": 1,
+    "teamId": 1,
+    "role": "MEMBER",
+    "accepted": false,
+    "created_at": "2024-01-15T10:00:00.000Z",
+    "updated_at": "2024-01-15T10:00:00.000Z"
+  }
+}
+```
+
+---
+
 ## 🔧 **Setup do Banco de Dados**
 
 ### **POST** `/setup/init-database`

@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
     } = req.query;
 
     // Construir query base
-    let query = 'SELECT * FROM "User"';
+    let query = 'SELECT * FROM users';
     let conditions = [];
     let params = [];
     let paramCount = 0;
@@ -59,7 +59,7 @@ router.get('/', async (req, res) => {
     const result = await db.query(query, params);
 
     // Contar total de registros para paginação
-    let countQuery = 'SELECT COUNT(*) FROM "User"';
+    let countQuery = 'SELECT COUNT(*) FROM users';
     if (conditions.length > 0) {
       countQuery += ' WHERE ' + conditions.join(' AND ');
     }
@@ -93,7 +93,7 @@ router.get('/', async (req, res) => {
 router.get('/email/:email', async (req, res) => {
   const { email } = req.params;
   try {
-    const result = await db.query('SELECT * FROM "User" WHERE email = $1', [email]);
+    const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
@@ -108,7 +108,7 @@ router.get('/email/:email', async (req, res) => {
 router.get('/:userId', async (req, res) => {
   const { userId } = req.params;
   try {
-    const result = await db.query('SELECT * FROM "User" WHERE id = $1', [userId]);
+    const result = await db.query('SELECT * FROM users WHERE id = $1', [userId]);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
@@ -129,7 +129,7 @@ router.post('/', async (req, res) => {
 
   try {
     const result = await db.query(
-      'INSERT INTO "User" (name, email) VALUES ($1, $2) RETURNING *',
+      'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',
       [name, email]
     );
     res.status(201).json(result.rows[0]);
@@ -149,7 +149,7 @@ router.put('/:userId', async (req, res) => {
 
   try {
     const result = await db.query(
-      'UPDATE "User" SET name = $1, email = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3 RETURNING *',
+      'UPDATE users SET name = $1, email = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3 RETURNING *',
       [name, email, userId]
     );
     
@@ -171,7 +171,7 @@ router.put('/:userId', async (req, res) => {
 router.delete('/:userId', async (req, res) => {
   const { userId } = req.params;
   try {
-    const result = await db.query('DELETE FROM "User" WHERE id = $1 RETURNING *', [userId]);
+    const result = await db.query('DELETE FROM users WHERE id = $1 RETURNING *', [userId]);
     if (result.rowCount === 0) {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }

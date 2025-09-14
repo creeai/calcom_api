@@ -1,18 +1,37 @@
 {
   "name": "calcom-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "API REST para sistema de agendamentos Cal.com com PostgreSQL",
   "main": "index.js",
   "scripts": {
-  "start": "node index.js"
-},
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker:build": "docker build -t calcom-api .",
+    "docker:run": "docker run -p 3000:3000 --env-file .env calcom-api",
+    "docker:compose": "docker-compose up --build"
+  },
+  "keywords": [
+    "api",
+    "calcom",
+    "agendamentos",
+    "postgresql",
+    "express",
+    "nodejs"
+  ],
+  "author": "Seu Nome",
+  "license": "MIT",
   "dependencies": {
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "pg": "^8.13.1",
     "uuid": "^11.0.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   }
 }

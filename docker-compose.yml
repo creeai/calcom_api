@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Banco de dados PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: calcom-postgres
+    environment:
+      POSTGRES_DB: calcom_db
+      POSTGRES_USER: calcom_user
+      POSTGRES_PASSWORD: calcom_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - calcom-network
+
+  # Aplicação Node.js
+  app:
+    build: .
+    container_name: calcom-api
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://calcom_user:calcom_password@postgres:5432/calcom_db
+      - PORT=3000
+    depends_on:
+      - postgres
+    networks:
+      - calcom-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+
+networks:
+  calcom-network:
+    driver: bridge

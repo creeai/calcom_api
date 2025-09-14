@@ -1,0 +1,338 @@
+// routes/availability.js
+const express = require('express');
+const router = express.Router();
+const db = require('../db');
+
+// Obter todas as disponibilidades (com filtros e paginação)
+router.get('/', async (req, res) => {
+  try {
+    const { 
+      page = 1, 
+      limit = 10, 
+      userId,
+      scheduleId,
+      date,
+      sortBy = 'id', 
+      sortOrder = 'ASC' 
+    } = req.query;
+
+    // Construir query base
+    let query = 'SELECT * FROM "Availability"';
+    let conditions = [];
+    let params = [];
+    let paramCount = 0;
+
+    // Adicionar filtros
+    if (userId) {
+      paramCount++;
+      conditions.push(`"userId" = $${paramCount}`);
+      params.push(parseInt(userId));
+    }
+
+    if (scheduleId) {
+      paramCount++;
+      conditions.push(`"scheduleId" = $${paramCount}`);
+      params.push(parseInt(scheduleId));
+    }
+
+    if (date) {
+      paramCount++;
+      conditions.push(`DATE("startTime") = $${paramCount}`);
+      params.push(date);
+    }
+
+    // Adicionar condições WHERE se existirem
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    // Adicionar ordenação
+    const validSortColumns = ['id', 'userId', 'scheduleId', 'startTime', 'endTime', 'created_at', 'updated_at'];
+    const sortColumn = validSortColumns.includes(sortBy) ? sortBy : 'id';
+    const order = sortOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+    query += ` ORDER BY "${sortColumn}" ${order}`;
+
+    // Adicionar paginação
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+    paramCount++;
+    query += ` LIMIT $${paramCount}`;
+    params.push(parseInt(limit));
+    
+    paramCount++;
+    query += ` OFFSET $${paramCount}`;
+    params.push(offset);
+
+    // Executar query
+    const result = await db.query(query, params);
+
+    // Contar total de registros para paginação
+    let countQuery = 'SELECT COUNT(*) FROM "Availability"';
+    if (conditions.length > 0) {
+      countQuery += ' WHERE ' + conditions.join(' AND ');
+    }
+    const countResult = await db.query(countQuery, params.slice(0, -2)); // Remove LIMIT e OFFSET params
+    const total = parseInt(countResult.rows[0].count);
+
+    res.json({
+      availability: result.rows,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        totalPages: Math.ceil(total / parseInt(limit)),
+        hasNext: page * limit < total,
+        hasPrev: page > 1
+      },
+      filters: {
+        userId: userId || null,
+        scheduleId: scheduleId || null,
+        date: date || null,
+        sortBy,
+        sortOrder
+      }
+    });
+  } catch (err) {
+    console.error('Erro ao buscar disponibilidades:', err);
+    res.status(500).json({ error: 'Erro ao buscar disponibilidades' });
+  }
+});
+
+// Obter disponibilidades de um usuário específico
+router.get('/user/:userId', async (req, res) => {
+  const { userId } = req.params;
+  const { date, scheduleId } = req.query;
+  
+  try {
+    let query = 'SELECT * FROM "Availability" WHERE "userId" = $1';
+    let params = [userId];
+    let paramCount = 1;
+
+    if (date) {
+      paramCount++;
+      query += ` AND DATE("startTime") = $${paramCount}`;
+      params.push(date);
+    }
+
+    if (scheduleId) {
+      paramCount++;
+      query += ` AND "scheduleId" = $${paramCount}`;
+      params.push(parseInt(scheduleId));
+    }
+
+    query += ' ORDER BY "startTime" ASC';
+
+    const result = await db.query(query, params);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Erro ao buscar disponibilidades do usuário:', err);
+    res.status(500).json({ error: 'Erro ao buscar disponibilidades do usuário' });
+  }
+});
+
+// Obter disponibilidades de um schedule específico
+router.get('/schedule/:scheduleId', async (req, res) => {
+  const { scheduleId } = req.params;
+  const { date } = req.query;
+  
+  try {
+    let query = 'SELECT * FROM "Availability" WHERE "scheduleId" = $1';
+    let params = [parseInt(scheduleId)];
+    let paramCount = 1;
+
+    if (date) {
+      paramCount++;
+      query += ` AND DATE("startTime") = $${paramCount}`;
+      params.push(date);
+    }
+
+    query += ' ORDER BY "startTime" ASC';
+
+    const result = await db.query(query, params);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Erro ao buscar disponibilidades do schedule:', err);
+    res.status(500).json({ error: 'Erro ao buscar disponibilidades do schedule' });
+  }
+});
+
+// Obter uma disponibilidade específica por ID
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await db.query('SELECT * FROM "Availability" WHERE id = $1', [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Disponibilidade não encontrada' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Erro ao buscar disponibilidade:', err);
+    res.status(500).json({ error: 'Erro ao buscar disponibilidade' });
+  }
+});
+
+// Criar nova disponibilidade
+router.post('/', async (req, res) => {
+  const { userId, scheduleId, startTime, endTime, days } = req.body;
+  
+  if (!userId || !scheduleId || !startTime || !endTime) {
+    return res.status(400).json({ 
+      error: 'userId, scheduleId, startTime e endTime são obrigatórios' 
+    });
+  }
+
+  try {
+    const result = await db.query(
+      `INSERT INTO "Availability" ("userId", "scheduleId", "startTime", "endTime", "days")
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [userId, scheduleId, startTime, endTime, days]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Erro ao criar disponibilidade:', err);
+    res.status(500).json({ error: 'Erro ao criar disponibilidade' });
+  }
+});
+
+// Atualizar disponibilidade existente
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  const { scheduleId, startTime, endTime, days } = req.body;
+
+  try {
+    const result = await db.query(
+      `UPDATE "Availability"
+       SET "scheduleId" = $1, "startTime" = $2, "endTime" = $3, "days" = $4, "updated_at" = CURRENT_TIMESTAMP
+       WHERE id = $5
+       RETURNING *`,
+      [scheduleId, startTime, endTime, days, id]
+    );
+    
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Disponibilidade não encontrada' });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Erro ao atualizar disponibilidade:', err);
+    res.status(500).json({ error: 'Erro ao atualizar disponibilidade' });
+  }
+});
+
+// Deletar disponibilidade
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await db.query('DELETE FROM "Availability" WHERE id = $1 RETURNING *', [id]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Disponibilidade não encontrada' });
+    }
+    res.json({ message: 'Disponibilidade deletada com sucesso', availability: result.rows[0] });
+  } catch (err) {
+    console.error('Erro ao deletar disponibilidade:', err);
+    res.status(500).json({ error: 'Erro ao deletar disponibilidade' });
+  }
+});
+
+// Verificar disponibilidade em um período específico
+router.post('/check', async (req, res) => {
+  const { userId, startTime, endTime, date } = req.body;
+  
+  if (!userId || !startTime || !endTime) {
+    return res.status(400).json({ 
+      error: 'userId, startTime e endTime são obrigatórios' 
+    });
+  }
+
+  try {
+    let query = `
+      SELECT * FROM "Availability" 
+      WHERE "userId" = $1 
+      AND "startTime" <= $2 
+      AND "endTime" >= $3
+    `;
+    let params = [userId, endTime, startTime];
+    let paramCount = 3;
+
+    if (date) {
+      paramCount++;
+      query += ` AND DATE("startTime") = $${paramCount}`;
+      params.push(date);
+    }
+
+    query += ' ORDER BY "startTime" ASC';
+
+    const result = await db.query(query, params);
+    
+    res.json({
+      available: result.rows.length > 0,
+      availability: result.rows,
+      requestedPeriod: {
+        startTime,
+        endTime,
+        date: date || null
+      }
+    });
+  } catch (err) {
+    console.error('Erro ao verificar disponibilidade:', err);
+    res.status(500).json({ error: 'Erro ao verificar disponibilidade' });
+  }
+});
+
+// Obter horários disponíveis para um usuário em uma data específica
+router.get('/user/:userId/available-slots', async (req, res) => {
+  const { userId } = req.params;
+  const { date, duration = 30 } = req.query;
+  
+  if (!date) {
+    return res.status(400).json({ error: 'Parâmetro date é obrigatório' });
+  }
+
+  try {
+    const result = await db.query(`
+      SELECT 
+        "startTime",
+        "endTime",
+        "days"
+      FROM "Availability" 
+      WHERE "userId" = $1 
+      AND DATE("startTime") = $2
+      ORDER BY "startTime" ASC
+    `, [userId, date]);
+
+    // Gerar slots de tempo baseado na duração
+    const slots = [];
+    const durationMinutes = parseInt(duration);
+
+    result.rows.forEach(availability => {
+      const start = new Date(availability.startTime);
+      const end = new Date(availability.endTime);
+      
+      let current = new Date(start);
+      while (current < end) {
+        const slotEnd = new Date(current.getTime() + durationMinutes * 60000);
+        if (slotEnd <= end) {
+          slots.push({
+            startTime: current.toISOString(),
+            endTime: slotEnd.toISOString(),
+            duration: durationMinutes
+          });
+        }
+        current = slotEnd;
+      }
+    });
+
+    res.json({
+      date,
+      userId,
+      duration: durationMinutes,
+      availableSlots: slots,
+      totalSlots: slots.length
+    });
+  } catch (err) {
+    console.error('Erro ao obter slots disponíveis:', err);
+    res.status(500).json({ error: 'Erro ao obter slots disponíveis' });
+  }
+});
+
+module.exports = router;

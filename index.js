@@ -4,6 +4,7 @@ const app = express();
 const usersRouter = require('./routes/users');
 const bookingsRouter = require('./routes/bookings');
 const eventTypesRouter = require('./routes/eventTypes');
+const availabilityRouter = require('./routes/availability');
 const setupRouter = require('./routes/setup');
 const exploreRouter = require('./routes/explore');
 const db = require('./db');
@@ -78,6 +79,7 @@ app.get('/', (req, res) => {
       users: `${baseUrl}${redirectInfo.customRoutes.users}`,
       bookings: `${baseUrl}${redirectInfo.customRoutes.booking}`,
       eventTypes: `${baseUrl}${redirectInfo.customRoutes.eventTypes}`,
+      availability: `${baseUrl}/availability`,
       health: `${baseUrl}${redirectInfo.customRoutes.health}`,
       setup: `${baseUrl}/setup`,
       explore: `${baseUrl}/explore`
@@ -97,7 +99,13 @@ app.get('/', (req, res) => {
       
       // Tipos de Eventos
       getEventTypes: `GET ${baseUrl}${redirectInfo.customRoutes.eventTypes}`,
-      getEventTypeById: `GET ${baseUrl}${redirectInfo.customRoutes.eventTypes}/1`
+      getEventTypeById: `GET ${baseUrl}${redirectInfo.customRoutes.eventTypes}/1`,
+      
+      // Disponibilidade
+      getAvailability: `GET ${baseUrl}/availability`,
+      getUserAvailability: `GET ${baseUrl}/availability/user/1`,
+      checkAvailability: `POST ${baseUrl}/availability/check`,
+      getAvailableSlots: `GET ${baseUrl}/availability/user/1/available-slots?date=2024-01-15`
     },
     environmentVariables: {
       BOOKING_ROUTE: process.env.BOOKING_ROUTE || '/booking',
@@ -113,6 +121,7 @@ app.get('/', (req, res) => {
 app.use('/users', usersRouter);
 app.use('/bookings', bookingsRouter);
 app.use('/event-types', eventTypesRouter);
+app.use('/availability', availabilityRouter);
 app.use('/setup', setupRouter);
 app.use('/explore', exploreRouter);
 
@@ -121,6 +130,7 @@ console.log('✅ Rotas registradas:');
 console.log('  - /users');
 console.log('  - /bookings');
 console.log('  - /event-types');
+console.log('  - /availability');
 console.log('  - /setup');
 console.log('  - /explore');
 console.log('  - /health');

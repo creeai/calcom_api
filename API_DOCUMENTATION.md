@@ -605,6 +605,346 @@ DELETE /event-types/1
 
 ---
 
+## 📅 **Disponibilidade (Availability)**
+
+### **GET** `/availability`
+Lista todas as disponibilidades com filtros e paginação.
+
+**Parâmetros de Query:**
+- `page` (opcional): Número da página (padrão: 1)
+- `limit` (opcional): Itens por página (padrão: 10)
+- `userId` (opcional): Filtrar por ID do usuário
+- `scheduleId` (opcional): Filtrar por ID do schedule
+- `date` (opcional): Filtrar por data específica
+- `sortBy` (opcional): Campo para ordenação (id, userId, scheduleId, startTime, endTime, created_at, updated_at)
+- `sortOrder` (opcional): Ordem (ASC ou DESC)
+
+**Exemplo:**
+```bash
+GET /availability?page=1&limit=10&userId=1&date=2024-01-15&sortBy=startTime&sortOrder=ASC
+```
+
+**Resposta:**
+```json
+{
+  "availability": [
+    {
+      "id": 1,
+      "userId": 1,
+      "scheduleId": 1,
+      "startTime": "2024-01-15T09:00:00.000Z",
+      "endTime": "2024-01-15T17:00:00.000Z",
+      "days": [1, 2, 3, 4, 5],
+      "created_at": "2024-01-15T10:00:00.000Z",
+      "updated_at": "2024-01-15T10:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 5,
+    "totalPages": 1,
+    "hasNext": false,
+    "hasPrev": false
+  },
+  "filters": {
+    "userId": "1",
+    "scheduleId": null,
+    "date": "2024-01-15",
+    "sortBy": "startTime",
+    "sortOrder": "ASC"
+  }
+}
+```
+
+### **GET** `/availability/user/{userId}`
+Lista todas as disponibilidades de um usuário específico.
+
+**Parâmetros:**
+- `userId` (integer): ID do usuário
+
+**Parâmetros de Query:**
+- `date` (opcional): Filtrar por data específica
+- `scheduleId` (opcional): Filtrar por ID do schedule
+
+**Exemplo:**
+```bash
+GET /availability/user/1?date=2024-01-15&scheduleId=1
+```
+
+**Resposta:**
+```json
+[
+  {
+    "id": 1,
+    "userId": 1,
+    "scheduleId": 1,
+    "startTime": "2024-01-15T09:00:00.000Z",
+    "endTime": "2024-01-15T17:00:00.000Z",
+    "days": [1, 2, 3, 4, 5],
+    "created_at": "2024-01-15T10:00:00.000Z",
+    "updated_at": "2024-01-15T10:00:00.000Z"
+  }
+]
+```
+
+### **GET** `/availability/schedule/{scheduleId}`
+Lista todas as disponibilidades de um schedule específico.
+
+**Parâmetros:**
+- `scheduleId` (integer): ID do schedule
+
+**Parâmetros de Query:**
+- `date` (opcional): Filtrar por data específica
+
+**Exemplo:**
+```bash
+GET /availability/schedule/1?date=2024-01-15
+```
+
+**Resposta:**
+```json
+[
+  {
+    "id": 1,
+    "userId": 1,
+    "scheduleId": 1,
+    "startTime": "2024-01-15T09:00:00.000Z",
+    "endTime": "2024-01-15T17:00:00.000Z",
+    "days": [1, 2, 3, 4, 5],
+    "created_at": "2024-01-15T10:00:00.000Z",
+    "updated_at": "2024-01-15T10:00:00.000Z"
+  }
+]
+```
+
+### **GET** `/availability/{id}`
+Busca uma disponibilidade específica por ID.
+
+**Parâmetros:**
+- `id` (integer): ID da disponibilidade
+
+**Exemplo:**
+```bash
+GET /availability/1
+```
+
+**Resposta de Sucesso (200):**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "scheduleId": 1,
+  "startTime": "2024-01-15T09:00:00.000Z",
+  "endTime": "2024-01-15T17:00:00.000Z",
+  "days": [1, 2, 3, 4, 5],
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "updated_at": "2024-01-15T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (404):**
+```json
+{
+  "error": "Disponibilidade não encontrada"
+}
+```
+
+### **POST** `/availability`
+Cria uma nova disponibilidade.
+
+**Body:**
+```json
+{
+  "userId": 1,
+  "scheduleId": 1,
+  "startTime": "2024-01-15T09:00:00Z",
+  "endTime": "2024-01-15T17:00:00Z",
+  "days": [1, 2, 3, 4, 5]
+}
+```
+
+**Resposta de Sucesso (201):**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "scheduleId": 1,
+  "startTime": "2024-01-15T09:00:00.000Z",
+  "endTime": "2024-01-15T17:00:00.000Z",
+  "days": [1, 2, 3, 4, 5],
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "updated_at": "2024-01-15T10:00:00.000Z"
+}
+```
+
+**Resposta de Erro (400):**
+```json
+{
+  "error": "userId, scheduleId, startTime e endTime são obrigatórios"
+}
+```
+
+### **PUT** `/availability/{id}`
+Atualiza uma disponibilidade existente.
+
+**Parâmetros:**
+- `id` (integer): ID da disponibilidade
+
+**Body:**
+```json
+{
+  "scheduleId": 2,
+  "startTime": "2024-01-15T08:00:00Z",
+  "endTime": "2024-01-15T18:00:00Z",
+  "days": [1, 2, 3, 4, 5, 6]
+}
+```
+
+**Resposta de Sucesso (200):**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "scheduleId": 2,
+  "startTime": "2024-01-15T08:00:00.000Z",
+  "endTime": "2024-01-15T18:00:00.000Z",
+  "days": [1, 2, 3, 4, 5, 6],
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "updated_at": "2024-01-15T10:30:00.000Z"
+}
+```
+
+**Resposta de Erro (404):**
+```json
+{
+  "error": "Disponibilidade não encontrada"
+}
+```
+
+### **DELETE** `/availability/{id}`
+Deleta uma disponibilidade.
+
+**Parâmetros:**
+- `id` (integer): ID da disponibilidade
+
+**Exemplo:**
+```bash
+DELETE /availability/1
+```
+
+**Resposta de Sucesso (200):**
+```json
+{
+  "message": "Disponibilidade deletada com sucesso",
+  "availability": {
+    "id": 1,
+    "userId": 1,
+    "scheduleId": 1,
+    "startTime": "2024-01-15T09:00:00.000Z",
+    "endTime": "2024-01-15T17:00:00.000Z",
+    "days": [1, 2, 3, 4, 5],
+    "created_at": "2024-01-15T10:00:00.000Z",
+    "updated_at": "2024-01-15T10:00:00.000Z"
+  }
+}
+```
+
+**Resposta de Erro (404):**
+```json
+{
+  "error": "Disponibilidade não encontrada"
+}
+```
+
+### **POST** `/availability/check`
+Verifica se um usuário está disponível em um período específico.
+
+**Body:**
+```json
+{
+  "userId": 1,
+  "startTime": "2024-01-15T10:00:00Z",
+  "endTime": "2024-01-15T11:00:00Z",
+  "date": "2024-01-15"
+}
+```
+
+**Resposta:**
+```json
+{
+  "available": true,
+  "availability": [
+    {
+      "id": 1,
+      "userId": 1,
+      "scheduleId": 1,
+      "startTime": "2024-01-15T09:00:00.000Z",
+      "endTime": "2024-01-15T17:00:00.000Z",
+      "days": [1, 2, 3, 4, 5],
+      "created_at": "2024-01-15T10:00:00.000Z",
+      "updated_at": "2024-01-15T10:00:00.000Z"
+    }
+  ],
+  "requestedPeriod": {
+    "startTime": "2024-01-15T10:00:00Z",
+    "endTime": "2024-01-15T11:00:00Z",
+    "date": "2024-01-15"
+  }
+}
+```
+
+### **GET** `/availability/user/{userId}/available-slots`
+Obtém horários disponíveis para um usuário em uma data específica.
+
+**Parâmetros:**
+- `userId` (integer): ID do usuário
+
+**Parâmetros de Query:**
+- `date` (obrigatório): Data para verificar disponibilidade (formato: YYYY-MM-DD)
+- `duration` (opcional): Duração dos slots em minutos (padrão: 30)
+
+**Exemplo:**
+```bash
+GET /availability/user/1/available-slots?date=2024-01-15&duration=30
+```
+
+**Resposta:**
+```json
+{
+  "date": "2024-01-15",
+  "userId": 1,
+  "duration": 30,
+  "availableSlots": [
+    {
+      "startTime": "2024-01-15T09:00:00.000Z",
+      "endTime": "2024-01-15T09:30:00.000Z",
+      "duration": 30
+    },
+    {
+      "startTime": "2024-01-15T09:30:00.000Z",
+      "endTime": "2024-01-15T10:00:00.000Z",
+      "duration": 30
+    },
+    {
+      "startTime": "2024-01-15T10:00:00.000Z",
+      "endTime": "2024-01-15T10:30:00.000Z",
+      "duration": 30
+    }
+  ],
+  "totalSlots": 16
+}
+```
+
+**Resposta de Erro (400):**
+```json
+{
+  "error": "Parâmetro date é obrigatório"
+}
+```
+
+---
+
 ## 🔧 **Setup do Banco de Dados**
 
 ### **POST** `/setup/init-database`
@@ -969,6 +1309,45 @@ fetch(`${baseUrl}/booking`, {
 })
 .then(response => response.json())
 .then(data => console.log(data));
+
+// Listar disponibilidades
+fetch(`${baseUrl}/availability?page=1&limit=10&userId=1`)
+  .then(response => response.json())
+  .then(data => console.log(data.availability));
+
+// Verificar disponibilidade
+fetch(`${baseUrl}/availability/check`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    userId: 1,
+    startTime: '2024-01-15T10:00:00Z',
+    endTime: '2024-01-15T11:00:00Z',
+    date: '2024-01-15'
+  })
+})
+.then(response => response.json())
+.then(data => console.log(data));
+
+// Obter slots disponíveis
+fetch(`${baseUrl}/availability/user/1/available-slots?date=2024-01-15&duration=30`)
+  .then(response => response.json())
+  .then(data => console.log(data.availableSlots));
+
+// Criar disponibilidade
+fetch(`${baseUrl}/availability`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    userId: 1,
+    scheduleId: 1,
+    startTime: '2024-01-15T09:00:00Z',
+    endTime: '2024-01-15T17:00:00Z',
+    days: [1, 2, 3, 4, 5]
+  })
+})
+.then(response => response.json())
+.then(data => console.log(data));
 ```
 
 ### **cURL:**
@@ -989,6 +1368,33 @@ curl -X POST https://seu-dominio.com/booking \
 
 # Buscar usuário por email
 curl https://seu-dominio.com/user/email/joao@exemplo.com
+
+# Listar disponibilidades
+curl "https://seu-dominio.com/availability?page=1&limit=10&userId=1"
+
+# Verificar disponibilidade
+curl -X POST https://seu-dominio.com/availability/check \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": 1,
+    "startTime": "2024-01-15T10:00:00Z",
+    "endTime": "2024-01-15T11:00:00Z",
+    "date": "2024-01-15"
+  }'
+
+# Obter slots disponíveis
+curl "https://seu-dominio.com/availability/user/1/available-slots?date=2024-01-15&duration=30"
+
+# Criar disponibilidade
+curl -X POST https://seu-dominio.com/availability \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": 1,
+    "scheduleId": 1,
+    "startTime": "2024-01-15T09:00:00Z",
+    "endTime": "2024-01-15T17:00:00Z",
+    "days": [1, 2, 3, 4, 5]
+  }'
 ```
 
 ### **Python/Requests:**
@@ -1011,6 +1417,42 @@ booking_data = {
 }
 response = requests.post(f'{base_url}/booking', json=booking_data)
 booking = response.json()
+
+# Listar disponibilidades
+response = requests.get(f'{base_url}/availability', params={
+    'page': 1,
+    'limit': 10,
+    'userId': 1
+})
+availability = response.json()
+
+# Verificar disponibilidade
+check_data = {
+    'userId': 1,
+    'startTime': '2024-01-15T10:00:00Z',
+    'endTime': '2024-01-15T11:00:00Z',
+    'date': '2024-01-15'
+}
+response = requests.post(f'{base_url}/availability/check', json=check_data)
+availability_check = response.json()
+
+# Obter slots disponíveis
+response = requests.get(f'{base_url}/availability/user/1/available-slots', params={
+    'date': '2024-01-15',
+    'duration': 30
+})
+slots = response.json()
+
+# Criar disponibilidade
+availability_data = {
+    'userId': 1,
+    'scheduleId': 1,
+    'startTime': '2024-01-15T09:00:00Z',
+    'endTime': '2024-01-15T17:00:00Z',
+    'days': [1, 2, 3, 4, 5]
+}
+response = requests.post(f'{base_url}/availability', json=availability_data)
+new_availability = response.json()
 ```
 
 ---

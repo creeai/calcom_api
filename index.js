@@ -5,6 +5,7 @@ const usersRouter = require('./routes/users');
 const bookingsRouter = require('./routes/bookings');
 const eventTypesRouter = require('./routes/eventTypes');
 const setupRouter = require('./routes/setup');
+const exploreRouter = require('./routes/explore');
 const db = require('./db');
 const { subdomainMiddleware } = require('./middleware/subdomain');
 const { redirectMiddleware, redirectInfoMiddleware } = require('./middleware/redirect');
@@ -78,7 +79,8 @@ app.get('/', (req, res) => {
       bookings: `${baseUrl}${redirectInfo.customRoutes.booking}`,
       eventTypes: `${baseUrl}${redirectInfo.customRoutes.eventTypes}`,
       health: `${baseUrl}${redirectInfo.customRoutes.health}`,
-      setup: `${baseUrl}/setup`
+      setup: `${baseUrl}/setup`,
+      explore: `${baseUrl}/explore`
     },
     examples: {
       // Usuários
@@ -112,6 +114,7 @@ app.use('/users', usersRouter);
 app.use('/bookings', bookingsRouter);
 app.use('/event-types', eventTypesRouter);
 app.use('/setup', setupRouter);
+app.use('/explore', exploreRouter);
 
 // Log das rotas registradas
 console.log('✅ Rotas registradas:');
@@ -119,6 +122,7 @@ console.log('  - /users');
 console.log('  - /bookings');
 console.log('  - /event-types');
 console.log('  - /setup');
+console.log('  - /explore');
 console.log('  - /health');
 console.log('  - /');
 

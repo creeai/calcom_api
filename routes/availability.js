@@ -3,6 +3,12 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
+// Middleware de debug para verificar rotas
+router.use((req, res, next) => {
+  console.log(`🔍 Availability Route: ${req.method} ${req.url} - Params:`, req.params);
+  next();
+});
+
 // Função para gerar horários disponíveis organizados por dias
 function generateWeeklyAvailability() {
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -74,8 +80,14 @@ function generateWeeklyAvailability() {
 // Obter uma disponibilidade específica por ID (DEVE VIR ANTES DA ROTA GERAL)
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
+  
+  // Verificar se o ID é um número válido
+  if (isNaN(id) || !Number.isInteger(Number(id))) {
+    return res.status(400).json({ error: 'ID deve ser um número inteiro válido' });
+  }
+  
   try {
-    const result = await db.query('SELECT * FROM "Availability" WHERE id = $1', [id]);
+    const result = await db.query('SELECT * FROM "Availability" WHERE id = $1', [parseInt(id)]);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Disponibilidade não encontrada' });
     }

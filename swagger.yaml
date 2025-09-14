@@ -692,6 +692,1594 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /bookings:
+    get:
+      tags:
+        - bookings
+      summary: Listar agendamentos
+      description: Lista todos os agendamentos com filtros e paginação
+      parameters:
+        - name: page
+          in: query
+          description: Número da página
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Itens por página
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: userId
+          in: query
+          description: Filtrar por ID do usuário
+          required: false
+          schema:
+            type: integer
+        - name: eventTypeId
+          in: query
+          description: Filtrar por ID do tipo de evento
+          required: false
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: Filtrar por status
+          required: false
+          schema:
+            type: string
+            enum: [PENDING, CONFIRMED, CANCELLED, COMPLETED]
+      responses:
+        '200':
+          description: Lista de agendamentos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bookings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Booking'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      tags:
+        - bookings
+      summary: Criar agendamento
+      description: Cria um novo agendamento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  example: 1
+                eventTypeId:
+                  type: integer
+                  example: 1
+                title:
+                  type: string
+                  example: "Consulta Médica"
+                startTime:
+                  type: string
+                  format: date-time
+                  example: "2024-01-15T10:00:00Z"
+                endTime:
+                  type: string
+                  format: date-time
+                  example: "2024-01-15T10:30:00Z"
+                description:
+                  type: string
+                  example: "Consulta de rotina"
+              required:
+                - userId
+                - eventTypeId
+                - startTime
+                - endTime
+      responses:
+        '201':
+          description: Agendamento criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /bookings/{id}:
+    get:
+      tags:
+        - bookings
+      summary: Buscar agendamento por ID
+      description: Busca um agendamento específico por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do agendamento
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Agendamento encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '404':
+          description: Agendamento não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - bookings
+      summary: Atualizar agendamento
+      description: Atualiza um agendamento existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do agendamento
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Consulta Médica Atualizada"
+                startTime:
+                  type: string
+                  format: date-time
+                  example: "2024-01-15T11:00:00Z"
+                endTime:
+                  type: string
+                  format: date-time
+                  example: "2024-01-15T11:30:00Z"
+                status:
+                  type: string
+                  enum: [PENDING, CONFIRMED, CANCELLED, COMPLETED]
+                  example: "CONFIRMED"
+                description:
+                  type: string
+                  example: "Consulta de rotina atualizada"
+      responses:
+        '200':
+          description: Agendamento atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '404':
+          description: Agendamento não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - bookings
+      summary: Deletar agendamento
+      description: Deleta um agendamento
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do agendamento
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Agendamento deletado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Agendamento deletado com sucesso"
+                  booking:
+                    $ref: '#/components/schemas/Booking'
+        '404':
+          description: Agendamento não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /event-types:
+    get:
+      tags:
+        - event-types
+      summary: Listar tipos de eventos
+      description: Lista todos os tipos de eventos com filtros e paginação
+      parameters:
+        - name: page
+          in: query
+          description: Número da página
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Itens por página
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: userId
+          in: query
+          description: Filtrar por ID do usuário
+          required: false
+          schema:
+            type: integer
+        - name: active
+          in: query
+          description: Filtrar por status ativo
+          required: false
+          schema:
+            type: boolean
+        - name: title
+          in: query
+          description: Filtrar por título
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de tipos de eventos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  eventTypes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EventType'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      tags:
+        - event-types
+      summary: Criar tipo de evento
+      description: Cria um novo tipo de evento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Consulta Médica"
+                slug:
+                  type: string
+                  example: "consulta-medica"
+                description:
+                  type: string
+                  example: "Consulta médica de 30 minutos"
+                length:
+                  type: integer
+                  example: 30
+                schedulingType:
+                  type: string
+                  enum: [ROUND_ROBIN, COLLECTIVE, MANAGED]
+                  example: "ROUND_ROBIN"
+                active:
+                  type: boolean
+                  example: true
+                userId:
+                  type: integer
+                  example: 1
+              required:
+                - title
+                - length
+                - userId
+      responses:
+        '201':
+          description: Tipo de evento criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventType'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /event-types/{id}:
+    get:
+      tags:
+        - event-types
+      summary: Buscar tipo de evento por ID
+      description: Busca um tipo de evento específico por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do tipo de evento
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Tipo de evento encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventType'
+        '404':
+          description: Tipo de evento não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - event-types
+      summary: Atualizar tipo de evento
+      description: Atualiza um tipo de evento existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do tipo de evento
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Consulta Médica Atualizada"
+                description:
+                  type: string
+                  example: "Consulta médica de 45 minutos"
+                length:
+                  type: integer
+                  example: 45
+                active:
+                  type: boolean
+                  example: true
+      responses:
+        '200':
+          description: Tipo de evento atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventType'
+        '404':
+          description: Tipo de evento não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - event-types
+      summary: Deletar tipo de evento
+      description: Deleta um tipo de evento
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do tipo de evento
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Tipo de evento deletado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Tipo de evento deletado com sucesso"
+                  eventType:
+                    $ref: '#/components/schemas/EventType'
+        '404':
+          description: Tipo de evento não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /schedules:
+    get:
+      tags:
+        - schedules
+      summary: Listar schedules
+      description: Lista todos os schedules com filtros e paginação
+      parameters:
+        - name: page
+          in: query
+          description: Número da página
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Itens por página
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: userId
+          in: query
+          description: Filtrar por ID do usuário
+          required: false
+          schema:
+            type: integer
+        - name: name
+          in: query
+          description: Filtrar por nome do schedule
+          required: false
+          schema:
+            type: string
+        - name: timeZone
+          in: query
+          description: Filtrar por timezone
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de schedules
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  schedules:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Schedule'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      tags:
+        - schedules
+      summary: Criar schedule
+      description: Cria um novo schedule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  example: 1
+                name:
+                  type: string
+                  example: "Horário Comercial"
+                timeZone:
+                  type: string
+                  example: "America/Sao_Paulo"
+                availability:
+                  type: object
+                  example:
+                    monday: [{"start": "09:00", "end": "17:00"}]
+                    tuesday: [{"start": "09:00", "end": "17:00"}]
+              required:
+                - userId
+                - name
+                - timeZone
+      responses:
+        '201':
+          description: Schedule criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /schedules/{id}:
+    get:
+      tags:
+        - schedules
+      summary: Buscar schedule por ID
+      description: Busca um schedule específico por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do schedule
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Schedule encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+        '404':
+          description: Schedule não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - schedules
+      summary: Atualizar schedule
+      description: Atualiza um schedule existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do schedule
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Horário Estendido"
+                timeZone:
+                  type: string
+                  example: "America/Sao_Paulo"
+                availability:
+                  type: object
+                  example:
+                    monday: [{"start": "08:00", "end": "18:00"}]
+                    tuesday: [{"start": "08:00", "end": "18:00"}]
+      responses:
+        '200':
+          description: Schedule atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+        '404':
+          description: Schedule não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - schedules
+      summary: Deletar schedule
+      description: Deleta um schedule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do schedule
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Schedule deletado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Schedule deletado com sucesso"
+                  schedule:
+                    $ref: '#/components/schemas/Schedule'
+        '404':
+          description: Schedule não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /slots:
+    get:
+      tags:
+        - slots
+      summary: Obter slots disponíveis
+      description: Obtém todos os slots disponíveis entre um período
+      parameters:
+        - name: startTime
+          in: query
+          required: true
+          description: Data/hora de início (formato ISO 8601)
+          schema:
+            type: string
+            format: date-time
+        - name: endTime
+          in: query
+          required: true
+          description: Data/hora de fim (formato ISO 8601)
+          schema:
+            type: string
+            format: date-time
+        - name: userId
+          in: query
+          description: Filtrar por ID do usuário
+          required: false
+          schema:
+            type: integer
+        - name: eventTypeId
+          in: query
+          description: Filtrar por ID do tipo de evento
+          required: false
+          schema:
+            type: integer
+        - name: timeZone
+          in: query
+          description: Timezone
+          required: false
+          schema:
+            type: string
+            default: UTC
+      responses:
+        '200':
+          description: Slots disponíveis
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  slots:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Slot'
+                  totalSlots:
+                    type: integer
+                  period:
+                    type: object
+                    properties:
+                      startTime:
+                        type: string
+                        format: date-time
+                      endTime:
+                        type: string
+                        format: date-time
+                      timeZone:
+                        type: string
+                  filters:
+                    type: object
+        '400':
+          description: startTime e endTime são obrigatórios
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /slots/user/{userId}:
+    get:
+      tags:
+        - slots
+      summary: Obter slots de um usuário
+      description: Obtém slots disponíveis para um usuário específico
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID do usuário
+          schema:
+            type: integer
+        - name: startTime
+          in: query
+          required: true
+          description: Data/hora de início
+          schema:
+            type: string
+            format: date-time
+        - name: endTime
+          in: query
+          required: true
+          description: Data/hora de fim
+          schema:
+            type: string
+            format: date-time
+        - name: eventTypeId
+          in: query
+          description: Filtrar por ID do tipo de evento
+          required: false
+          schema:
+            type: integer
+        - name: timeZone
+          in: query
+          description: Timezone
+          required: false
+          schema:
+            type: string
+            default: UTC
+      responses:
+        '200':
+          description: Slots do usuário
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: integer
+                  slots:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Slot'
+                  totalSlots:
+                    type: integer
+                  period:
+                    type: object
+                  filters:
+                    type: object
+        '400':
+          description: startTime e endTime são obrigatórios
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /slots/event-type/{eventTypeId}:
+    get:
+      tags:
+        - slots
+      summary: Obter slots de um tipo de evento
+      description: Obtém slots disponíveis para um tipo de evento específico
+      parameters:
+        - name: eventTypeId
+          in: path
+          required: true
+          description: ID do tipo de evento
+          schema:
+            type: integer
+        - name: startTime
+          in: query
+          required: true
+          description: Data/hora de início
+          schema:
+            type: string
+            format: date-time
+        - name: endTime
+          in: query
+          required: true
+          description: Data/hora de fim
+          schema:
+            type: string
+            format: date-time
+        - name: timeZone
+          in: query
+          description: Timezone
+          required: false
+          schema:
+            type: string
+            default: UTC
+      responses:
+        '200':
+          description: Slots do tipo de evento
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  eventType:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      title:
+                        type: string
+                      duration:
+                        type: integer
+                  slots:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Slot'
+                  totalSlots:
+                    type: integer
+                  period:
+                    type: object
+        '400':
+          description: startTime e endTime são obrigatórios
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Tipo de evento não encontrado ou sem disponibilidade
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /setup/init-database:
+    post:
+      tags:
+        - setup
+      summary: Inicializar banco de dados
+      description: Inicializa o banco de dados criando todas as tabelas necessárias
+      responses:
+        '200':
+          description: Banco de dados inicializado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Banco de dados inicializado com sucesso"
+                  tables:
+                    type: array
+                    items:
+                      type: string
+                    example: ["User", "EventType", "Booking", "Schedule", "Availability", "Team", "Membership"]
+        '500':
+          description: Erro ao inicializar banco de dados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /setup/database-status:
+    get:
+      tags:
+        - setup
+      summary: Status do banco de dados
+      description: Verifica o status das tabelas do banco de dados
+      responses:
+        '200':
+          description: Status do banco de dados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "OK"
+                  tables:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        exists:
+                          type: boolean
+                        rowCount:
+                          type: integer
+
+  /setup/seed-data:
+    post:
+      tags:
+        - setup
+      summary: Popular banco com dados de exemplo
+      description: Popula o banco de dados com dados de exemplo para teste
+      responses:
+        '200':
+          description: Dados de exemplo inseridos com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Dados de exemplo inseridos com sucesso"
+                  inserted:
+                    type: object
+                    properties:
+                      users:
+                        type: integer
+                      eventTypes:
+                        type: integer
+                      schedules:
+                        type: integer
+                      availability:
+                        type: integer
+
+  /explore/tables:
+    get:
+      tags:
+        - explore
+      summary: Listar tabelas do banco
+      description: Lista todas as tabelas do banco de dados
+      responses:
+        '200':
+          description: Lista de tabelas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tables:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        table_name:
+                          type: string
+                        table_type:
+                          type: string
+                        row_count:
+                          type: integer
+
+  /explore/table/{tableName}:
+    get:
+      tags:
+        - explore
+      summary: Estrutura de uma tabela
+      description: Obtém a estrutura de uma tabela específica
+      parameters:
+        - name: tableName
+          in: path
+          required: true
+          description: Nome da tabela
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Estrutura da tabela
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  table_name:
+                    type: string
+                  columns:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        column_name:
+                          type: string
+                        data_type:
+                          type: string
+                        is_nullable:
+                          type: string
+                        column_default:
+                          type: string
+        '404':
+          description: Tabela não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /explore/table/{tableName}/sample:
+    get:
+      tags:
+        - explore
+      summary: Dados de exemplo de uma tabela
+      description: Obtém dados de exemplo de uma tabela específica
+      parameters:
+        - name: tableName
+          in: path
+          required: true
+          description: Nome da tabela
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Número de registros
+          required: false
+          schema:
+            type: integer
+            default: 5
+      responses:
+        '200':
+          description: Dados de exemplo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  table_name:
+                    type: string
+                  sample_data:
+                    type: array
+                    items:
+                      type: object
+                  total_rows:
+                    type: integer
+        '404':
+          description: Tabela não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /teams:
+    get:
+      tags:
+        - teams
+      summary: Listar teams
+      description: Lista todos os teams com filtros e paginação
+      parameters:
+        - name: page
+          in: query
+          description: Número da página
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Itens por página
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: name
+          in: query
+          description: Filtrar por nome do team
+          required: false
+          schema:
+            type: string
+        - name: slug
+          in: query
+          description: Filtrar por slug do team
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de teams
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  teams:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Team'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      tags:
+        - teams
+      summary: Criar team
+      description: Cria um novo team
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Equipe Desenvolvimento"
+                slug:
+                  type: string
+                  example: "equipe-desenvolvimento"
+                logo:
+                  type: string
+                  example: "https://exemplo.com/logo.png"
+                bio:
+                  type: string
+                  example: "Equipe responsável pelo desenvolvimento"
+                hideBranding:
+                  type: boolean
+                  example: false
+                isPrivate:
+                  type: boolean
+                  example: false
+                metadata:
+                  type: object
+                  example:
+                    department: "IT"
+                    location: "São Paulo"
+              required:
+                - name
+                - slug
+      responses:
+        '201':
+          description: Team criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Slug já existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /teams/{id}:
+    get:
+      tags:
+        - teams
+      summary: Buscar team por ID
+      description: Busca um team específico por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do team
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Team encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '404':
+          description: Team não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - teams
+      summary: Atualizar team
+      description: Atualiza um team existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do team
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Equipe Desenvolvimento Atualizada"
+                bio:
+                  type: string
+                  example: "Equipe responsável pelo desenvolvimento e inovação"
+                hideBranding:
+                  type: boolean
+                  example: true
+                metadata:
+                  type: object
+                  example:
+                    department: "IT"
+                    location: "São Paulo"
+                    size: "10"
+      responses:
+        '200':
+          description: Team atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '404':
+          description: Team não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - teams
+      summary: Deletar team
+      description: Deleta um team
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do team
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Team deletado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Team deletado com sucesso"
+                  team:
+                    $ref: '#/components/schemas/Team'
+        '404':
+          description: Team não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /teams/{id}/members:
+    get:
+      tags:
+        - teams
+      summary: Listar membros do team
+      description: Lista os membros de um team
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do team
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Número da página
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Itens por página
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: role
+          in: query
+          description: Filtrar por role
+          required: false
+          schema:
+            type: string
+            enum: [OWNER, ADMIN, MEMBER]
+      responses:
+        '200':
+          description: Lista de membros
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  team:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                  members:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Membership'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /memberships:
+    get:
+      tags:
+        - memberships
+      summary: Listar memberships
+      description: Lista todos os memberships com filtros e paginação
+      parameters:
+        - name: page
+          in: query
+          description: Número da página
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Itens por página
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: userId
+          in: query
+          description: Filtrar por ID do usuário
+          required: false
+          schema:
+            type: integer
+        - name: teamId
+          in: query
+          description: Filtrar por ID do team
+          required: false
+          schema:
+            type: integer
+        - name: role
+          in: query
+          description: Filtrar por role
+          required: false
+          schema:
+            type: string
+            enum: [OWNER, ADMIN, MEMBER]
+        - name: accepted
+          in: query
+          description: Filtrar por status de aceitação
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Lista de memberships
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  memberships:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Membership'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      tags:
+        - memberships
+      summary: Criar membership
+      description: Cria um novo membership
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  example: 1
+                teamId:
+                  type: integer
+                  example: 1
+                role:
+                  type: string
+                  enum: [OWNER, ADMIN, MEMBER]
+                  example: "MEMBER"
+                accepted:
+                  type: boolean
+                  example: false
+              required:
+                - userId
+                - teamId
+      responses:
+        '201':
+          description: Membership criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Membership'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Usuário ou team não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Usuário já é membro deste team
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /memberships/{id}:
+    get:
+      tags:
+        - memberships
+      summary: Buscar membership por ID
+      description: Busca um membership específico por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do membership
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Membership encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Membership'
+        '404':
+          description: Membership não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - memberships
+      summary: Atualizar membership
+      description: Atualiza um membership existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do membership
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum: [OWNER, ADMIN, MEMBER]
+                  example: "ADMIN"
+                accepted:
+                  type: boolean
+                  example: true
+      responses:
+        '200':
+          description: Membership atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Membership'
+        '404':
+          description: Membership não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - memberships
+      summary: Deletar membership
+      description: Deleta um membership
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do membership
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Membership deletado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Membership deletado com sucesso"
+                  membership:
+                    $ref: '#/components/schemas/Membership'
+        '404':
+          description: Membership não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /memberships/{id}/accept:
+    patch:
+      tags:
+        - memberships
+      summary: Aceitar convite de membership
+      description: Aceita um convite de membership
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do membership
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Convite aceito com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Convite aceito com sucesso"
+                  membership:
+                    $ref: '#/components/schemas/Membership'
+        '404':
+          description: Membership não encontrado ou já aceito
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /memberships/{id}/reject:
+    patch:
+      tags:
+        - memberships
+      summary: Rejeitar convite de membership
+      description: Rejeita um convite de membership
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID do membership
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Convite rejeitado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Convite rejeitado com sucesso"
+                  membership:
+                    $ref: '#/components/schemas/Membership'
+        '404':
+          description: Membership não encontrado ou já aceito
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 components:
   schemas:
     User:

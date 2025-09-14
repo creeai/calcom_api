@@ -71,6 +71,21 @@ function generateWeeklyAvailability() {
   return dates;
 }
 
+// Obter uma disponibilidade específica por ID (DEVE VIR ANTES DA ROTA GERAL)
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await db.query('SELECT * FROM "Availability" WHERE id = $1', [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Disponibilidade não encontrada' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Erro ao buscar disponibilidade:', err);
+    res.status(500).json({ error: 'Erro ao buscar disponibilidade' });
+  }
+});
+
 // Obter todas as disponibilidades (com filtros e paginação)
 router.get('/', async (req, res) => {
   try {
@@ -238,21 +253,6 @@ router.get('/schedule/:scheduleId', async (req, res) => {
   } catch (err) {
     console.error('Erro ao buscar disponibilidades do schedule:', err);
     res.status(500).json({ error: 'Erro ao buscar disponibilidades do schedule' });
-  }
-});
-
-// Obter uma disponibilidade específica por ID
-router.get('/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const result = await db.query('SELECT * FROM "Availability" WHERE id = $1', [id]);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Disponibilidade não encontrada' });
-    }
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error('Erro ao buscar disponibilidade:', err);
-    res.status(500).json({ error: 'Erro ao buscar disponibilidade' });
   }
 });
 

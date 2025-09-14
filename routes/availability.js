@@ -3,6 +3,74 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
+// Função para gerar horários disponíveis organizados por dias
+function generateWeeklyAvailability() {
+  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const dates = [];
+  
+  // Gerar datas para os próximos 7 dias
+  const today = new Date();
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    
+    const dayName = daysOfWeek[date.getDay()];
+    const dateString = date.toISOString().split('T')[0];
+    
+    // Gerar horários baseados no dia da semana
+    let hours = [];
+    
+    if (dayName === 'Monday') {
+      // Segunda-feira: horários limitados
+      hours = [
+        { start: "10:00 BRT", end: "11:00 BRT" },
+        { start: "13:00 BRT", end: "14:00 BRT" },
+        { start: "14:00 BRT", end: "15:00 BRT" },
+        { start: "16:00 BRT", end: "17:00 BRT" },
+        { start: "17:00 BRT", end: "18:00 BRT" },
+        { start: "18:00 BRT", end: "19:00 BRT" }
+      ];
+    } else if (dayName === 'Saturday') {
+      // Sábado: horários limitados
+      hours = [
+        { start: "08:00 BRT", end: "09:00 BRT" },
+        { start: "09:00 BRT", end: "10:00 BRT" },
+        { start: "10:00 BRT", end: "11:00 BRT" },
+        { start: "11:00 BRT", end: "12:00 BRT" },
+        { start: "12:00 BRT", end: "13:00 BRT" },
+        { start: "13:00 BRT", end: "14:00 BRT" },
+        { start: "14:00 BRT", end: "15:00 BRT" }
+      ];
+    } else if (dayName === 'Sunday') {
+      // Domingo: sem horários disponíveis
+      hours = [];
+    } else {
+      // Terça a Sexta: horários completos
+      hours = [
+        { start: "08:00 BRT", end: "09:00 BRT" },
+        { start: "09:00 BRT", end: "10:00 BRT" },
+        { start: "10:00 BRT", end: "11:00 BRT" },
+        { start: "11:00 BRT", end: "12:00 BRT" },
+        { start: "12:00 BRT", end: "13:00 BRT" },
+        { start: "13:00 BRT", end: "14:00 BRT" },
+        { start: "14:00 BRT", end: "15:00 BRT" },
+        { start: "15:00 BRT", end: "16:00 BRT" },
+        { start: "16:00 BRT", end: "17:00 BRT" },
+        { start: "17:00 BRT", end: "18:00 BRT" },
+        { start: "18:00 BRT", end: "19:00 BRT" }
+      ];
+    }
+    
+    dates.push({
+      day: dayName,
+      date: dateString,
+      hours: hours
+    });
+  }
+  
+  return dates;
+}
+
 // Obter todas as disponibilidades (com filtros e paginação)
 router.get('/', async (req, res) => {
   try {
@@ -13,9 +81,27 @@ router.get('/', async (req, res) => {
       scheduleId,
       date,
       sortBy = 'id', 
-      sortOrder = 'ASC' 
+      sortOrder = 'ASC',
+      format = 'structured' // Novo parâmetro para escolher formato
     } = req.query;
 
+    // Se format=structured, retornar no formato específico solicitado
+    if (format === 'structured') {
+      const dates = generateWeeklyAvailability();
+      
+      return res.json([{
+        data: {
+          dates: dates
+        },
+        meta: {
+          serverTime: new Date().toISOString(),
+          statusCode: 200,
+          message: "FOUND"
+        }
+      }]);
+    }
+
+    // Formato original (compatibilidade)
     // Construir query base
     let query = 'SELECT * FROM "Availability"';
     let conditions = [];

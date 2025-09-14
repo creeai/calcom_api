@@ -87,14 +87,56 @@ router.get('/:id', async (req, res) => {
   }
   
   try {
-    const result = await db.query('SELECT * FROM "Availability" WHERE id = $1', [parseInt(id)]);
+    console.log(`🔎 Buscando disponibilidade com ID: ${id}`);
+    const query = 'SELECT * FROM "Availability" WHERE id = $1';
+    console.log(`📝 Executando query: ${query} com parâmetros: [${id}]`);
+    
+    const result = await db.query(query, [parseInt(id)]);
+    console.log(`📊 Resultado da query:`, result.rows);
+    
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Disponibilidade não encontrada' });
+      console.log(`⚠️ Disponibilidade com ID ${id} não encontrada. Total de registros retornados: ${result.rows.length}`);
+      return res.status(404).json({ 
+        error: 'Disponibilidade não encontrada',
+        id: parseInt(id),
+        message: `Nenhum registro encontrado com ID ${id}`
+      });
     }
+    
+    console.log(`✅ Disponibilidade com ID ${id} encontrada:`, result.rows[0]);
     res.json(result.rows[0]);
   } catch (err) {
-    console.error('Erro ao buscar disponibilidade:', err);
-    res.status(500).json({ error: 'Erro ao buscar disponibilidade' });
+    console.error(`❌ Erro ao buscar disponibilidade com ID ${id}:`, err);
+    res.status(500).json({ 
+      error: 'Erro ao buscar disponibilidade',
+      details: err.message,
+      id: parseInt(id)
+    });
+  }
+});
+
+// Listar todos os IDs disponíveis na tabela Availability
+router.get('/debug/ids', async (req, res) => {
+  try {
+    console.log('🔍 Listando todos os IDs disponíveis na tabela Availability');
+    const result = await db.query('SELECT id, "userId", "scheduleId", "startTime", "endTime", days FROM "Availability" ORDER BY id ASC');
+    
+    console.log(`📊 Total de registros encontrados: ${result.rows.length}`);
+    console.log('📋 IDs disponíveis:', result.rows.map(row => row.id));
+    
+    res.json({
+      success: true,
+      totalRecords: result.rows.length,
+      availableIds: result.rows.map(row => row.id),
+      records: result.rows
+    });
+  } catch (err) {
+    console.error('❌ Erro ao listar IDs de disponibilidade:', err);
+    res.status(500).json({ 
+      success: false,
+      error: 'Erro ao listar IDs de disponibilidade',
+      details: err.message
+    });
   }
 });
 

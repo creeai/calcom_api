@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "build": "echo 'Build completed - no build step required for this API'",
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "docker:build": "docker build -t calcom-api .",
@@ -19,7 +20,7 @@
     "express",
     "nodejs"
   ],
-  "author": "Seu Nome",
+  "author": "Jhonatan Oliveira",
   "license": "MIT",
   "dependencies": {
     "dotenv": "^16.4.7",

@@ -5,13 +5,18 @@ const usersRouter = require('./routes/users');
 const bookingsRouter = require('./routes/bookings');
 const eventTypesRouter = require('./routes/eventTypes');
 const db = require('./db');
-const { subdomainMiddleware, apiPrefixMiddleware } = require('./middleware/subdomain');
+const { subdomainMiddleware } = require('./middleware/subdomain');
 
 app.use(express.json());
 
-// Middleware para subdomínios
+// Middleware para subdomínios (apenas para informações)
 app.use(subdomainMiddleware);
-app.use(apiPrefixMiddleware);
+
+// Middleware de debug para ver as rotas
+app.use((req, res, next) => {
+  console.log(`🔍 ${req.method} ${req.url} - Host: ${req.get('host')}`);
+  next();
+});
 
 // Middleware para CORS (necessário para Easy Panel)
 app.use((req, res, next) => {
@@ -75,9 +80,18 @@ app.get('/', (req, res) => {
   });
 });
 
+// Registrar rotas
 app.use('/users', usersRouter);
 app.use('/bookings', bookingsRouter);
 app.use('/event-types', eventTypesRouter);
+
+// Log das rotas registradas
+console.log('✅ Rotas registradas:');
+console.log('  - /users');
+console.log('  - /bookings');
+console.log('  - /event-types');
+console.log('  - /health');
+console.log('  - /');
 
 // Middleware de tratamento de erros
 app.use((err, req, res, next) => {

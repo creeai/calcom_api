@@ -15,10 +15,8 @@ const subdomainMiddleware = (req, res, next) => {
 
 // Middleware para rotas com prefixo de subdomínio
 const apiPrefixMiddleware = (req, res, next) => {
-  // Se for um subdomínio de API, adiciona prefixo
-  if (req.isApiSubdomain) {
-    req.url = `/api${req.url}`;
-  }
+  // Não adiciona prefixo - as rotas funcionam diretamente
+  // Este middleware pode ser usado para futuras funcionalidades
   next();
 };
 

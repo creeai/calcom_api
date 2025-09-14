@@ -10,6 +10,20 @@ Atualmente a API não requer autenticação. Para implementar autenticação, ad
 
 ## 📋 Endpoints Disponíveis
 
+**Total de Endpoints Implementados: 42**
+
+### 📊 **Resumo por Categoria:**
+- 👤 **Usuários**: 6 endpoints
+- 📅 **Agendamentos**: 4 endpoints  
+- 🎯 **Tipos de Eventos**: 5 endpoints
+- ⏰ **Disponibilidade**: 9 endpoints
+- 📅 **Schedules**: 8 endpoints
+- ⏰ **Slots**: 3 endpoints
+- 👥 **Teams**: 7 endpoints
+- 👥 **Memberships**: 8 endpoints
+- 🔧 **Setup**: 3 endpoints
+- 🔍 **Exploração**: 6 endpoints
+
 ---
 
 ## 🏠 **Informações da API**
@@ -302,6 +316,65 @@ DELETE /user/1
 ---
 
 ## 📅 **Agendamentos**
+
+### **GET** `/bookings`
+Lista todos os agendamentos com informações detalhadas.
+
+**Parâmetros de Query:**
+- Nenhum
+
+**Exemplo:**
+```bash
+GET /bookings
+```
+
+**Resposta:**
+```json
+{
+  "success": true,
+  "count": 5,
+  "data": [
+    {
+      "uid": "123e4567-e89b-12d3-a456-426614174000",
+      "userId": 1,
+      "eventTypeId": 1,
+      "startTime": "2024-01-15T10:00:00.000Z",
+      "endTime": "2024-01-15T11:00:00.000Z",
+      "title": "Reunião de Trabalho",
+      "description": "Discussão sobre projeto"
+    }
+  ]
+}
+```
+
+### **GET** `/bookings/debug/table-structure`
+Endpoint de debug para verificar a estrutura da tabela de agendamentos.
+
+**Parâmetros:**
+- Nenhum
+
+**Exemplo:**
+```bash
+GET /bookings/debug/table-structure
+```
+
+**Resposta:**
+```json
+{
+  "success": true,
+  "tableExists": true,
+  "structure": [
+    {
+      "column_name": "id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "nextval('\"Booking_id_seq\"'::regclass)"
+    }
+  ],
+  "totalRecords": 5,
+  "sampleData": [...]
+}
+```
 
 ### **GET** `/booking/user/{userId}`
 Lista todos os agendamentos de um usuário específico.
@@ -605,10 +678,135 @@ DELETE /event-types/1
 
 ---
 
-## 📅 **Disponibilidade (Availability)**
+## ⏰ **Disponibilidade (Availability)**
 
 ### **GET** `/availability`
-Lista todas as disponibilidades com filtros e paginação.
+Lista todas as disponibilidades com formato estruturado por padrão.
+
+**Parâmetros de Query:**
+- `format` (string): Formato de resposta
+  - `structured` (padrão): Formato estruturado com horários organizados por dias
+  - `original`: Formato original com dados do banco
+- `page` (integer): Número da página (apenas para formato original)
+- `limit` (integer): Limite de registros por página (apenas para formato original)
+- `userId` (integer): Filtrar por usuário (apenas para formato original)
+- `scheduleId` (integer): Filtrar por schedule (apenas para formato original)
+- `date` (string): Filtrar por data (apenas para formato original)
+- `sortBy` (string): Campo para ordenação (apenas para formato original)
+- `sortOrder` (string): Ordem da classificação (ASC/DESC) (apenas para formato original)
+
+**Exemplo (Formato Estruturado - Padrão):**
+```bash
+GET /availability
+```
+
+**Resposta (Formato Estruturado):**
+```json
+[
+  {
+    "data": {
+      "dates": [
+        {
+          "day": "Monday",
+          "date": "2025-09-15",
+          "hours": [
+            {
+              "start": "10:00 BRT",
+              "end": "11:00 BRT"
+            },
+            {
+              "start": "13:00 BRT",
+              "end": "14:00 BRT"
+            },
+            {
+              "start": "14:00 BRT",
+              "end": "15:00 BRT"
+            },
+            {
+              "start": "16:00 BRT",
+              "end": "17:00 BRT"
+            },
+            {
+              "start": "17:00 BRT",
+              "end": "18:00 BRT"
+            },
+            {
+              "start": "18:00 BRT",
+              "end": "19:00 BRT"
+            }
+          ]
+        },
+        {
+          "day": "Tuesday",
+          "date": "2025-09-16",
+          "hours": [
+            {
+              "start": "08:00 BRT",
+              "end": "09:00 BRT"
+            },
+            {
+              "start": "09:00 BRT",
+              "end": "10:00 BRT"
+            }
+          ]
+        }
+      ]
+    },
+    "meta": {
+      "serverTime": "2025-09-14T16:52:52.114Z",
+      "statusCode": 200,
+      "message": "FOUND"
+    }
+  }
+]
+```
+
+**Exemplo (Formato Original):**
+```bash
+GET /availability?format=original&page=1&limit=10
+```
+
+**Resposta (Formato Original):**
+```json
+{
+  "availability": [
+    {
+      "id": 1,
+      "userId": 1,
+      "scheduleId": 1,
+      "startTime": "2024-01-15T09:00:00.000Z",
+      "endTime": "2024-01-15T17:00:00.000Z",
+      "days": [1, 2, 3, 4, 5],
+      "created_at": "2024-01-15T08:00:00.000Z",
+      "updated_at": "2024-01-15T08:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 25,
+    "totalPages": 3,
+    "hasNext": true,
+    "hasPrev": false
+  },
+  "filters": {
+    "userId": null,
+    "scheduleId": null,
+    "date": null,
+    "sortBy": "id",
+    "sortOrder": "ASC"
+  }
+}
+```
+
+**Horários por Dia da Semana:**
+- **Segunda-feira**: 10h-19h (horários limitados)
+- **Terça a Sexta**: 8h-19h (horários completos)
+- **Sábado**: 8h-15h (horários limitados)
+- **Domingo**: Sem horários disponíveis
+
+### **GET** `/availability` (Formato Original)
+Lista todas as disponibilidades com filtros e paginação (formato original).
 
 **Parâmetros de Query:**
 - `page` (opcional): Número da página (padrão: 1)

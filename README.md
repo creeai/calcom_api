@@ -1,14 +1,49 @@
 # Cal.com API
 
-API REST para sistema de agendamentos baseado no Cal.com, desenvolvida com Node.js, Express e PostgreSQL.
+API REST completa para sistema de agendamentos baseado no Cal.com, desenvolvida com Node.js, Express e PostgreSQL.
 
 ## 🚀 Funcionalidades
 
-- **Gestão de Usuários**: Visualizar informações de usuários
+- **42 Endpoints Implementados** cobrindo todas as funcionalidades do Cal.com
+- **Gestão de Usuários**: CRUD completo com filtros e paginação
+- **Agendamentos**: Sistema completo de agendamentos com debug
 - **Tipos de Eventos**: CRUD completo para tipos de eventos
-- **Agendamentos**: Sistema completo de agendamentos com operações CRUD
-- **Banco de Dados**: Integração com PostgreSQL
+- **Disponibilidade**: Formato estruturado com horários organizados por dias
+- **Schedules**: Gestão de horários e disponibilidade
+- **Slots**: Horários disponíveis para agendamento
+- **Teams**: Gestão de equipes
+- **Memberships**: Gestão de membros de equipes
+- **Exploração de Banco**: Endpoints para explorar estrutura do banco
+- **Banco de Dados**: Integração com PostgreSQL existente do Cal.com
 - **Containerização**: Suporte completo ao Docker
+- **Deploy**: Pronto para Easy Panel com Nixpacks
+- **Documentação**: Swagger/OpenAPI completa
+
+## 📊 Endpoints Disponíveis
+
+### **Total: 42 Endpoints Implementados**
+
+| Categoria | Endpoints | Descrição |
+|-----------|-----------|-----------|
+| 👤 **Usuários** | 6 | CRUD completo, filtros, paginação |
+| 📅 **Agendamentos** | 4 | Listagem, debug, CRUD |
+| 🎯 **Tipos de Eventos** | 5 | CRUD completo |
+| ⏰ **Disponibilidade** | 9 | Formato estruturado, verificação |
+| 📅 **Schedules** | 8 | Gestão de horários |
+| ⏰ **Slots** | 3 | Horários disponíveis |
+| 👥 **Teams** | 7 | Gestão de equipes |
+| 👥 **Memberships** | 8 | Gestão de membros |
+| 🔧 **Setup** | 3 | Configuração do banco |
+| 🔍 **Exploração** | 6 | Exploração do banco |
+
+### **Principais Endpoints:**
+- `GET /` - Informações da API
+- `GET /health` - Status da aplicação
+- `GET /users` - Lista usuários
+- `GET /bookings` - Lista agendamentos
+- `GET /availability` - Disponibilidade estruturada
+- `GET /teams` - Lista equipes
+- `GET /explore/tables` - Explora banco de dados
 
 ## 📋 Pré-requisitos
 

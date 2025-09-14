@@ -6,13 +6,16 @@ Este guia fornece instruções passo a passo para implementar a API Cal.com com 
 
 ## 🎯 Funcionalidades Implementadas
 
-- ✅ **API REST completa** para Cal.com
+- ✅ **API REST completa** para Cal.com (42 endpoints)
 - ✅ **Rotas customizadas** via variáveis de ambiente
 - ✅ **Exploração de banco de dados** existente
 - ✅ **CRUD completo** para usuários, agendamentos e tipos de eventos
 - ✅ **Filtros e paginação** avançados
 - ✅ **Deploy no Easy Panel** com Nixpacks
 - ✅ **Documentação completa** com exemplos
+- ✅ **Formato estruturado** para disponibilidade
+- ✅ **Endpoints de debug** para diagnóstico
+- ✅ **Documentação Swagger/OpenAPI** completa
 
 ## 📁 Estrutura do Projeto
 
@@ -25,22 +28,32 @@ calcom-API/
 ├── 📄 Dockerfile                  # Container Docker
 ├── 📄 docker-compose.yml          # Desenvolvimento local
 ├── 📄 docker-compose.prod.yml     # Produção
-├── 📁 routes/                     # Rotas da API
-│   ├── 📄 users.js                # API de usuários
-│   ├── 📄 bookings.js             # API de agendamentos
-│   ├── 📄 eventTypes.js           # API de tipos de eventos
-│   ├── 📄 setup.js                # Setup do banco
-│   └── 📄 explore.js              # Exploração do banco
+├── 📁 routes/                     # Rotas da API (42 endpoints)
+│   ├── 📄 users.js                # API de usuários (6 endpoints)
+│   ├── 📄 bookings.js             # API de agendamentos (4 endpoints)
+│   ├── 📄 eventTypes.js           # API de tipos de eventos (5 endpoints)
+│   ├── 📄 availability.js         # API de disponibilidade (9 endpoints)
+│   ├── 📄 schedules.js            # API de schedules (8 endpoints)
+│   ├── 📄 slots.js                # API de slots (3 endpoints)
+│   ├── 📄 teams.js                # API de teams (7 endpoints)
+│   ├── 📄 memberships.js          # API de memberships (8 endpoints)
+│   ├── 📄 setup.js                # Setup do banco (3 endpoints)
+│   └── 📄 explore.js              # Exploração do banco (6 endpoints)
 ├── 📁 middleware/                 # Middlewares
 │   ├── 📄 subdomain.js            # Detecção de subdomínios
 │   └── 📄 redirect.js             # Redirecionamento de rotas
 ├── 📁 database/                   # Scripts SQL
 │   └── 📄 schema.sql              # Schema do banco
+├── 📄 swagger.yaml                # Documentação Swagger/OpenAPI
 └── 📁 docs/                       # Documentação
     ├── 📄 README.md
+    ├── 📄 API_DOCUMENTATION.md    # Documentação completa da API
+    ├── 📄 IMPLEMENTATION_GUIDE.md # Este guia
     ├── 📄 DEPLOY_EASYPANEL.md
+    ├── 📄 DEPLOY_NIXPACKS.md
     ├── 📄 CUSTOM_ROUTES.md
     ├── 📄 USERS_API.md
+    ├── 📄 SWAGGER_README.md
     └── 📄 DATABASE_SETUP.md
 ```
 

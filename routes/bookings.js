@@ -4,6 +4,76 @@ const router = express.Router();
 const db = require('../db');
 const { v4: uuidv4 } = require('uuid');
 
+// Obter todos os agendamentos
+router.get('/', async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM "Booking" ORDER BY "createdAt" DESC');
+    res.json({
+      success: true,
+      count: result.rows.length,
+      data: result.rows
+    });
+  } catch (err) {
+    console.error('Erro ao buscar agendamentos:', err);
+    res.status(500).json({ 
+      success: false,
+      error: 'Erro ao buscar agendamentos',
+      details: err.message
+    });
+  }
+});
+
+// Verificar estrutura da tabela de bookings
+router.get('/debug/table-structure', async (req, res) => {
+  try {
+    // Verificar se a tabela existe
+    const tableExists = await db.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'Booking'
+      );
+    `);
+    
+    if (!tableExists.rows[0].exists) {
+      return res.status(404).json({
+        success: false,
+        error: 'Tabela Booking não existe',
+        suggestion: 'Verifique se o banco de dados está configurado corretamente'
+      });
+    }
+    
+    // Obter estrutura da tabela
+    const structure = await db.query(`
+      SELECT column_name, data_type, is_nullable, column_default
+      FROM information_schema.columns
+      WHERE table_name = 'Booking'
+      ORDER BY ordinal_position;
+    `);
+    
+    // Contar registros
+    const count = await db.query('SELECT COUNT(*) as total FROM "Booking"');
+    
+    // Obter alguns registros de exemplo
+    const sample = await db.query('SELECT * FROM "Booking" LIMIT 3');
+    
+    res.json({
+      success: true,
+      tableExists: true,
+      structure: structure.rows,
+      totalRecords: parseInt(count.rows[0].total),
+      sampleData: sample.rows
+    });
+  } catch (err) {
+    console.error('Erro ao verificar estrutura da tabela:', err);
+    res.status(500).json({ 
+      success: false,
+      error: 'Erro ao verificar estrutura da tabela',
+      details: err.message
+    });
+  }
+});
+
 // Obter todos os agendamentos de um usuário
 router.get('/user/:userId', async (req, res) => {
   const { userId } = req.params;

@@ -5,8 +5,13 @@ const usersRouter = require('./routes/users');
 const bookingsRouter = require('./routes/bookings');
 const eventTypesRouter = require('./routes/eventTypes');
 const db = require('./db');
+const { subdomainMiddleware, apiPrefixMiddleware } = require('./middleware/subdomain');
 
 app.use(express.json());
+
+// Middleware para subdomínios
+app.use(subdomainMiddleware);
+app.use(apiPrefixMiddleware);
 
 // Middleware para CORS (necessário para Easy Panel)
 app.use((req, res, next) => {
@@ -47,14 +52,25 @@ app.get('/health', async (req, res) => {
 
 // Rota raiz
 app.get('/', (req, res) => {
+  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  
   res.json({
     message: 'Cal.com API - Sistema de Agendamentos',
     version: '1.0.0',
+    host: req.get('host'),
+    subdomain: req.subdomain,
+    baseUrl: baseUrl,
     endpoints: {
-      users: '/users',
-      bookings: '/bookings',
-      eventTypes: '/event-types',
-      health: '/health'
+      users: `${baseUrl}/users`,
+      bookings: `${baseUrl}/bookings`,
+      eventTypes: `${baseUrl}/event-types`,
+      health: `${baseUrl}/health`
+    },
+    examples: {
+      getBookings: `GET ${baseUrl}/bookings/user/1`,
+      createBooking: `POST ${baseUrl}/bookings`,
+      getEventTypes: `GET ${baseUrl}/event-types`,
+      getUser: `GET ${baseUrl}/users/1`
     }
   });
 });

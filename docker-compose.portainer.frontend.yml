@@ -1,79 +1,87 @@
 version: "3.7"
 
 services:
-  # Define o Serviço da API Cal.com (usando imagem do Docker Hub)
+  # API Cal.com
   calcom-api:
-    # Define a imagem da API do Docker Hub
     image: jhonatancreeai/calcom:latest
-    # Define o hotname do container
     hostname: "{{.Service.Name}}.{{.Task.Slot}}"
-    # Define a Rede do Docker
     networks:
       - network_swarm_public
-    # Define as Variáveis de Ambiente
     environment:
-      # Variáveis Genéricas
       - NODE_ENV=production
       - PORT=3000
       - HOST=0.0.0.0
-      # Define a URL da API
-      - API_URL=https://minhaagenda.creeai.com.br
-      # Define as Variáveis de Banco de Dados
+      - API_URL=https://agenda.creeai.com.br
       - DATABASE_URL=postgres://postgres:bd1b2ca145206fd646ce@painel.creeai.com.br:5433/cal?sslmode=disable
-      # Definição da Variável para conexão direta com o banco de dados
       - DATABASE_DIRECT_URL=postgres://postgres:bd1b2ca145206fd646ce@painel.creeai.com.br:5433/cal?sslmode=disable
-      # Rotas Customizadas
       - BOOKING_ROUTE=/booking
       - EVENT_TYPE_ROUTE=/event-types
       - USER_ROUTE=/user
       - HEALTH_ROUTE=/health
       - ROOT_ROUTE=/
-    # Configura o Modo de Deploy da Aplicação
     deploy:
-      # Configura o modo de deploy
       mode: replicated
-      # Configura o numero de replicas
       replicas: 1
       placement:
         constraints:
           - node.role == manager
-          # - node.hostname == worker1
       resources:
         limits:
-          # Define a quantidade de CPU para a API para evitar travamento do Host
           cpus: "0.5"
-          # Define a quantidade de RAM para a API para evitar travamento do Host
           memory: 512M
         reservations:
-          # Define a quantidade mínima de CPU
           cpus: "0.25"
-          # Define a quantidade mínima de RAM
           memory: 256M
-      # Define as Configurações do Traefik
       labels:
-        # Habilita o Traefik
         - traefik.enable=true
-        # Define o Endereço da API
-        - traefik.http.routers.calcom-api.rule=Host(`minhaagenda.creeai.com.br`)
-        # Define o tipo de entrada para HTTPS
+        - traefik.http.routers.calcom-api.rule=Host(`agenda.creeai.com.br`) && PathPrefix(`/api`)
         - traefik.http.routers.calcom-api.entrypoints=websecure
-        # Define o certificado
         - traefik.http.routers.calcom-api.tls.certresolver=letsencryptresolver
-        # Define o serviço da API
         - traefik.http.routers.calcom-api.service=calcom-api
-        # Define a porta da API
         - traefik.http.services.calcom-api.loadbalancer.server.port=3000
-        # Define os Headers da API
         - traefik.http.services.calcom-api.loadbalancer.passHostHeader=true
-        # Define middleware para CORS
+        - traefik.http.middlewares.calcom-api-stripprefix.stripprefix.prefixes=/api
+        - traefik.http.routers.calcom-api.middlewares=calcom-api-stripprefix
         - traefik.http.middlewares.calcom-api-cors.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS
         - traefik.http.middlewares.calcom-api-cors.headers.accesscontrolallowheaders=Origin,X-Requested-With,Content-Type,Accept,Authorization
         - traefik.http.middlewares.calcom-api-cors.headers.accesscontrolalloworiginlist=*
         - traefik.http.routers.calcom-api.middlewares=calcom-api-cors
-    # Define restart policy
-    restart: unless-stopped
 
-# Define as Redes
+  # Frontend
+  frontend:
+    image: nginx:alpine
+    hostname: "{{.Service.Name}}.{{.Task.Slot}}"
+    networks:
+      - network_swarm_public
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.frontend.rule=Host(`agenda.creeai.com.br`)
+        - traefik.http.routers.frontend.entrypoints=websecure
+        - traefik.http.routers.frontend.tls.certresolver=letsencryptresolver
+        - traefik.http.routers.frontend.service=frontend
+        - traefik.http.services.frontend.loadbalancer.server.port=80
+        - traefik.http.services.frontend.loadbalancer.passHostHeader=true
+    configs:
+      - source: frontend_config
+        target: /usr/share/nginx/html/index.html
+
+configs:
+  frontend_config:
+    external: true
+
 networks:
   network_swarm_public:
     name: network_swarm_public

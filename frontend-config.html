@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cal.com API - Frontend</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+        }
+        .endpoint {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .endpoint h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .loading {
+            color: #3498db;
+        }
+        .error {
+            color: #e74c3c;
+        }
+        .success {
+            color: #27ae60;
+        }
+        .api-info {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Cal.com API - Frontend</h1>
+            <p>Interface para testar todas as rotas da API</p>
+        </div>
+        
+        <div class="content">
+            <div class="api-info">
+                <h3>📡 API Endpoints</h3>
+                <p><strong>Base URL:</strong> <code>https://agenda.creeai.com.br/api</code></p>
+                <p><strong>Status:</strong> <span id="api-status">Verificando...</span></p>
+            </div>
+
+            <!-- Health Check -->
+            <div class="endpoint">
+                <h3>🏥 Health Check</h3>
+                <button class="btn" onclick="testEndpoint('/api/health')">Testar Health</button>
+                <div id="health-result" class="result"></div>
+            </div>
+
+            <!-- API Info -->
+            <div class="endpoint">
+                <h3>ℹ️ API Info</h3>
+                <button class="btn" onclick="testEndpoint('/api/')">Informações da API</button>
+                <div id="info-result" class="result"></div>
+            </div>
+
+            <!-- Users -->
+            <div class="endpoint">
+                <h3>👥 Usuários</h3>
+                <button class="btn" onclick="testEndpoint('/api/users')">Listar Usuários</button>
+                <button class="btn" onclick="testEndpoint('/api/users/1')">Buscar Usuário ID 1</button>
+                <div id="users-result" class="result"></div>
+            </div>
+
+            <!-- Bookings -->
+            <div class="endpoint">
+                <h3>📅 Agendamentos</h3>
+                <button class="btn" onclick="testEndpoint('/api/bookings')">Listar Agendamentos</button>
+                <button class="btn" onclick="testEndpoint('/api/bookings/1')">Buscar Agendamento ID 1</button>
+                <div id="bookings-result" class="result"></div>
+            </div>
+
+            <!-- Event Types -->
+            <div class="endpoint">
+                <h3>🎯 Tipos de Evento</h3>
+                <button class="btn" onclick="testEndpoint('/api/event-types')">Listar Tipos</button>
+                <button class="btn" onclick="testEndpoint('/api/event-types/1')">Buscar Tipo ID 1</button>
+                <div id="event-types-result" class="result"></div>
+            </div>
+
+            <!-- Availability -->
+            <div class="endpoint">
+                <h3>⏰ Disponibilidade</h3>
+                <button class="btn" onclick="testEndpoint('/api/availability')">Listar Disponibilidade</button>
+                <button class="btn" onclick="testEndpoint('/api/availability/1')">Buscar Disponibilidade ID 1</button>
+                <div id="availability-result" class="result"></div>
+            </div>
+
+            <!-- Schedules -->
+            <div class="endpoint">
+                <h3>📋 Horários</h3>
+                <button class="btn" onclick="testEndpoint('/api/schedules')">Listar Horários</button>
+                <button class="btn" onclick="testEndpoint('/api/schedules/1')">Buscar Horário ID 1</button>
+                <div id="schedules-result" class="result"></div>
+            </div>
+
+            <!-- Teams -->
+            <div class="endpoint">
+                <h3>👥 Equipes</h3>
+                <button class="btn" onclick="testEndpoint('/api/teams')">Listar Equipes</button>
+                <button class="btn" onclick="testEndpoint('/api/teams/1')">Buscar Equipe ID 1</button>
+                <div id="teams-result" class="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://agenda.creeai.com.br';
+        
+        async function testEndpoint(endpoint) {
+            const resultId = endpoint.replace('/api/', '').replace('/', '-') + '-result';
+            const resultDiv = document.getElementById(resultId);
+            
+            resultDiv.innerHTML = '<span class="loading">Carregando...</span>';
+            
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`);
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `<span class="success">✅ Sucesso (${response.status})</span>\n\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Erro: ${error.message}</span>`;
+            }
+        }
+
+        // Verificar status da API ao carregar
+        window.onload = async function() {
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                if (response.ok) {
+                    document.getElementById('api-status').innerHTML = '<span class="success">✅ Online</span>';
+                } else {
+                    document.getElementById('api-status').innerHTML = '<span class="error">❌ Offline</span>';
+                }
+            } catch (error) {
+                document.getElementById('api-status').innerHTML = '<span class="error">❌ Erro de conexão</span>';
+            }
+            
+            // Teste automático do health check
+            testEndpoint('/api/health');
+        };
+    </script>
+</body>
+</html>

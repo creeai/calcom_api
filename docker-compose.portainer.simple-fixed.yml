@@ -1,38 +1,26 @@
 version: "3.8"
 
 services:
-  # Define o Serviço da API Cal.com (usando imagem do Docker Hub)
   calcom-api:
-    # Define a imagem da API do Docker Hub
     image: jhonatancreeai/calcom:latest
-    # Define o nome do container
     container_name: calcom-api
-    # Define as Variáveis de Ambiente
     environment:
-      # Variáveis Genéricas
       - NODE_ENV=production
       - PORT=3000
       - HOST=0.0.0.0
-      # Define a URL da API
       - API_URL=https://minhaagenda.creeai.com.br
-      # Define as Variáveis de Banco de Dados (Banco Externo)
       - DATABASE_URL=postgres://postgres:bd1b2ca145206fd646ce@painel.creeai.com.br:5433/cal?sslmode=disable
-      # Definição da Variável para conexão direta com o banco de dados
       - DATABASE_DIRECT_URL=postgres://postgres:bd1b2ca145206fd646ce@painel.creeai.com.br:5433/cal?sslmode=disable
-      # Rotas Customizadas
       - BOOKING_ROUTE=/booking
       - EVENT_TYPE_ROUTE=/event-types
       - USER_ROUTE=/user
       - HEALTH_ROUTE=/health
       - ROOT_ROUTE=/
-    # Define as portas
     ports:
       - "3000:3000"
-    # Define restart policy
     restart: unless-stopped
-    # Define health check
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -18,7 +18,7 @@ services:
       - HOST=0.0.0.0
       # Define a URL da API
       - API_URL=https://minhaagenda.creeai.com.br
-      # Define as Variáveis de Banco de Dados
+      # Define as Variáveis de Banco de Dados (Banco Externo)
       - DATABASE_URL=postgres://postgres:bd1b2ca145206fd646ce@painel.creeai.com.br:5433/cal?sslmode=disable
       # Definição da Variável para conexão direta com o banco de dados
       - DATABASE_DIRECT_URL=postgres://postgres:bd1b2ca145206fd646ce@painel.creeai.com.br:5433/cal?sslmode=disable
@@ -37,7 +37,6 @@ services:
       placement:
         constraints:
           - node.role == manager
-          # - node.hostname == worker1
       resources:
         limits:
           # Define a quantidade de CPU para a API para evitar travamento do Host

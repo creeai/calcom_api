@@ -37,7 +37,6 @@ services:
       placement:
         constraints:
           - node.role == manager
-          # - node.hostname == worker1
       resources:
         limits:
           # Define a quantidade de CPU para a API para evitar travamento do Host

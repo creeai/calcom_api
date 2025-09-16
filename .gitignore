@@ -3,6 +3,7 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
 # Arquivos de ambiente
 .env
@@ -10,6 +11,7 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+.env.staging
 
 # Logs
 logs
@@ -108,6 +110,9 @@ Thumbs.db
 
 # Docker
 .dockerignore
+Dockerfile.production
+docker-compose.override.yml
+docker-compose.local.yml
 
 # Database
 *.sqlite
@@ -116,3 +121,28 @@ Thumbs.db
 # Backup files
 *.backup
 *.bak
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.cert
+
+# Configuration files with sensitive data
+config/production.json
+config/staging.json
+secrets/
+credentials/
+
+# Build artifacts
+build/
+out/
+
+# Local development
+.local/
+local/
+
+# Package manager lock files (optional - uncomment if needed)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml

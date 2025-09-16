@@ -52,6 +52,13 @@ API REST completa para sistema de agendamentos baseado no Cal.com, desenvolvida 
 - PostgreSQL >= 12
 - Docker (opcional)
 
+## 🔒 Segurança
+
+- **NUNCA** commite arquivos `.env` para o controle de versão
+- Use `env.template` como referência para variáveis de ambiente
+- Configure senhas fortes e SSL em produção
+- Veja [SECURITY.md](SECURITY.md) para diretrizes detalhadas de segurança
+
 ## 🛠️ Instalação
 
 ### Instalação Local

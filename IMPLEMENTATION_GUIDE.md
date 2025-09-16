@@ -68,7 +68,7 @@ calcom-API/
 
 ### **1.2 Clone do Repositório**
 ```bash
-git clone https://github.com/creeai/calcom_api.git
+git clone https://github.com/your-username/calcom_api.git
 cd calcom_api
 ```
 
@@ -144,7 +144,7 @@ git push origin master
 
 #### **3.2.2 Configurar Fonte**
 1. **Source**: GitHub
-2. **Repository**: `creeai/calcom_api`
+2. **Repository**: `your-username/calcom_api`
 3. **Branch**: `master`
 4. **Build Pack**: Nixpacks
 

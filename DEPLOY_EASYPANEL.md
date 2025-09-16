@@ -1,7 +1,7 @@
 # 🚀 Deploy em Produção - Easy Panel
 
 ## 📋 Checklist Pré-Deploy
-- ✅ Código no GitHub: https://github.com/creeai/calcom_api
+- ✅ Código no GitHub: https://github.com/your-username/calcom_api
 - ✅ Branch master atualizada
 - ✅ Dockerfile configurado
 - ✅ Health check implementado
@@ -20,7 +20,7 @@
 3. **Descrição**: "API REST para sistema de agendamentos Cal.com"
 
 ### 3. Configurar Repositório
-1. **Repository URL**: `https://github.com/creeai/calcom_api.git`
+1. **Repository URL**: `https://github.com/your-username/calcom_api.git`
 2. **Branch**: `master`
 3. **Docker Compose File**: Cole o conteúdo abaixo
 

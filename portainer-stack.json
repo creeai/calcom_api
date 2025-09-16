@@ -14,9 +14,9 @@
         "NODE_ENV=production",
         "PORT=3000",
         "HOST=0.0.0.0",
-        "API_URL=https://api-cal.felipeluismartins.com",
-        "DATABASE_URL=postgresql://postgres:lg3k5qtS37nBDTA@postgres:5432/calcom_pdv",
-        "DATABASE_DIRECT_URL=postgresql://postgres:lg3k5qtS37nBDTA@postgres:5432/calcom_pdv",
+        "API_URL=https://your-domain.com",
+        "DATABASE_URL=postgresql://username:password@host:port/database",
+        "DATABASE_DIRECT_URL=postgresql://username:password@host:port/database",
         "BOOKING_ROUTE=/booking",
         "EVENT_TYPE_ROUTE=/event-types",
         "USER_ROUTE=/user",
@@ -43,7 +43,7 @@
         },
         "labels": [
           "traefik.enable=true",
-          "traefik.http.routers.calcom-api.rule=Host(`api-cal.felipeluismartins.com`)",
+          "traefik.http.routers.calcom-api.rule=Host(`your-domain.com`)",
           "traefik.http.routers.calcom-api.entrypoints=websecure",
           "traefik.http.routers.calcom-api.tls.certresolver=letsencryptresolver",
           "traefik.http.routers.calcom-api.service=calcom-api",
@@ -69,7 +69,7 @@
       "environment": [
         "POSTGRES_DB=calcom_pdv",
         "POSTGRES_USER=postgres",
-        "POSTGRES_PASSWORD=lg3k5qtS37nBDTA",
+        "POSTGRES_PASSWORD=your-password",
         "POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
       ],
       "deploy": {
@@ -107,8 +107,8 @@
         "network_swarm_public"
       ],
       "environment": [
-        "PGADMIN_DEFAULT_EMAIL=admin@felipeluismartins.com",
-        "PGADMIN_DEFAULT_PASSWORD=admin123",
+        "PGADMIN_DEFAULT_EMAIL=admin@your-domain.com",
+        "PGADMIN_DEFAULT_PASSWORD=your-password",
         "PGADMIN_CONFIG_SERVER_MODE=False"
       ],
       "deploy": {
@@ -131,7 +131,7 @@
         },
         "labels": [
           "traefik.enable=true",
-          "traefik.http.routers.pgadmin.rule=Host(`pgadmin.felipeluismartins.com`)",
+          "traefik.http.routers.pgadmin.rule=Host(`pgadmin.your-domain.com`)",
           "traefik.http.routers.pgadmin.entrypoints=websecure",
           "traefik.http.routers.pgadmin.tls.certresolver=letsencryptresolver",
           "traefik.http.routers.pgadmin.service=pgadmin",

@@ -1,31 +1,34 @@
-# Use a imagem oficial do Node.js
+# Use Node.js 18 Alpine as base image
 FROM node:18-alpine
 
-# Define o diretório de trabalho
+# Set working directory
 WORKDIR /app
 
-# Copia os arquivos de dependências
+# Copy package files
 COPY package*.json ./
 
-# Instala as dependências
+# Install production dependencies only
 RUN npm ci --only=production
 
-# Copia o código da aplicação
+# Copy application code
 COPY . .
 
-# Cria um usuário não-root para segurança
+# Create non-root user
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nodejs -u 1001
 
-# Muda a propriedade dos arquivos para o usuário nodejs
+# Change ownership of the app directory
 RUN chown -R nodejs:nodejs /app
+
+# Switch to non-root user
 USER nodejs
 
-# Expõe a porta
+# Expose port
 EXPOSE 3000
 
-# Define a variável de ambiente para produção
-ENV NODE_ENV=production
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node healthcheck.js
 
-# Comando para iniciar a aplicação
-CMD ["npm", "start"]
+# Start the application
+CMD ["node", "index.js"]

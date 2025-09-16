@@ -81,7 +81,7 @@
 ### **Gerenciamento:**
 - **pgAdmin**: `https://pgadmin.SEUDOMINIO.com`
   - Email: `admin@SEUDOMINIO.com`
-  - Senha: `admin123`
+  - Senha: `your-password`
 
 ## 📊 Recursos Alocados
 

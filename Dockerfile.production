@@ -1,44 +1,52 @@
-# Dockerfile para Produção - Cal.com API
+# Multi-stage build for production
 FROM node:18-alpine AS builder
 
-# Define o diretório de trabalho
+# Set working directory
 WORKDIR /app
 
-# Copia os arquivos de dependências
+# Copy package files
 COPY package*.json ./
 
-# Instala as dependências
-RUN npm ci --only=production && npm cache clean --force
+# Install all dependencies (including dev dependencies for build)
+RUN npm ci
 
-# Copia o código fonte
+# Copy source code
 COPY . .
 
-# Remove arquivos desnecessários
-RUN rm -rf node_modules/.cache && \
-    rm -rf .git && \
-    rm -rf docs && \
-    rm -rf *.md && \
-    rm -rf .env.example
+# Build the application (if needed)
+RUN npm run build || echo "No build script found, skipping..."
 
-# Cria usuário não-root para segurança
+# Production stage
+FROM node:18-alpine AS production
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install only production dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy built application from builder stage
+COPY --from=builder /app .
+
+# Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
 
-# Muda a propriedade dos arquivos
+# Change ownership of the app directory
 RUN chown -R nodejs:nodejs /app
+
+# Switch to non-root user
 USER nodejs
 
-# Expõe a porta
+# Expose port
 EXPOSE 3000
-
-# Define variáveis de ambiente
-ENV NODE_ENV=production
-ENV PORT=3000
-ENV HOST=0.0.0.0
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
 
-# Comando para iniciar a aplicação
+# Start the application
 CMD ["node", "index.js"]

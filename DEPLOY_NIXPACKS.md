@@ -3,7 +3,7 @@
 ## 📋 Configuração para Nixpacks
 
 ### ✅ Pré-requisitos
-- ✅ Código no GitHub: https://github.com/creeai/calcom_api
+- ✅ Código no GitHub: https://github.com/your-username/calcom_api
 - ✅ Branch master atualizada
 - ✅ package.json configurado
 - ✅ Variáveis de ambiente documentadas
@@ -22,7 +22,7 @@
 
 ### 3. Configurar Fonte GitHub
 1. **Source**: Selecione **"GitHub"**
-2. **Repository**: `creeai/calcom_api`
+2. **Repository**: `your-username/calcom_api`
 3. **Branch**: `master`
 4. **Build Pack**: Selecione **"Nixpacks"** (ou deixe automático)
 

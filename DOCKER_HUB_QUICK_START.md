@@ -14,7 +14,7 @@
 
 ### **3. O que o Script Faz:**
 1. ✅ Verifica se o Docker está rodando
-2. 🔐 Faz login no Docker Hub (jhonatancreeai)
+2. 🔐 Faz login no Docker Hub (your-username)
 3. 🔨 Build da imagem usando Dockerfile.production
 4. 🏷️ Cria tag com timestamp
 5. 📤 Push para Docker Hub
@@ -23,14 +23,14 @@
 ## 🌐 **Após o Deploy:**
 
 ### **Imagens Disponíveis:**
-- `jhonatancreeai/calcom:latest`
-- `jhonatancreeai/calcom:YYYYMMDD-HHMM`
+- `your-username/calcom:latest`
+- `your-username/calcom:YYYYMMDD-HHMM`
 
 ### **Para Usar no Portainer:**
 ```yaml
 services:
   calcom-api:
-    image: jhonatancreeai/calcom:latest
+    image: your-username/calcom:latest
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://postgres:senha@postgres:5432/calcom_pdv
@@ -38,12 +38,12 @@ services:
 
 ### **Para Testar Localmente:**
 ```bash
-docker pull jhonatancreeai/calcom:latest
-docker run -d -p 3000:3000 jhonatancreeai/calcom:latest
+docker pull your-username/calcom:latest
+docker run -d -p 3000:3000 your-username/calcom:latest
 ```
 
 ## 🔗 **Links Úteis:**
-- **Docker Hub**: https://hub.docker.com/r/jhonatancreeai/calcom
+- **Docker Hub**: https://hub.docker.com/r/your-username/calcom
 - **API Health**: http://localhost:3000/health
 - **API Docs**: http://localhost:3000/
 

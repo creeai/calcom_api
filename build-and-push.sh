@@ -1,4 +1,4 @@
-docker push jhonatancreeai/calcom:tagname
+docker push your-username/calcom:tagname
 #!/bin/bash
 
 # Script para build e push da imagem Cal.com API para Docker Hub

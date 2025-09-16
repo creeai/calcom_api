@@ -17,11 +17,11 @@ services:
       - PORT=3000
       - HOST=0.0.0.0
       # Define a URL da API
-      - API_URL=https://minhaagenda.creeai.com.br
+      - API_URL=https://your-domain.com
       # Define as Variáveis de Banco de Dados (Banco Externo)
-      - DATABASE_URL=postgres://postgres:bd1b2ca145206fd646ce@painel.creeai.com.br:5433/cal?sslmode=disable
+      - DATABASE_URL=postgres://username:password@host:port/database?sslmode=disable
       # Definição da Variável para conexão direta com o banco de dados
-      - DATABASE_DIRECT_URL=postgres://postgres:bd1b2ca145206fd646ce@painel.creeai.com.br:5433/cal?sslmode=disable
+      - DATABASE_DIRECT_URL=postgres://username:password@host:port/database?sslmode=disable
       # Rotas Customizadas
       - BOOKING_ROUTE=/booking
       - EVENT_TYPE_ROUTE=/event-types
@@ -53,7 +53,7 @@ services:
         # Habilita o Traefik
         - traefik.enable=true
         # Define o Endereço da API
-        - traefik.http.routers.calcom-api.rule=Host(`minhaagenda.creeai.com.br`)
+        - traefik.http.routers.calcom-api.rule=Host(`your-domain.com`)
         # Define o tipo de entrada para HTTPS
         - traefik.http.routers.calcom-api.entrypoints=websecure
         # Define o certificado

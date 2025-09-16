@@ -110,9 +110,12 @@ Thumbs.db
 
 # Docker
 .dockerignore
+Dockerfile
 Dockerfile.production
+docker-compose.yml
 docker-compose.override.yml
 docker-compose.local.yml
+docker-compose.portainer.*.yml
 
 # Database
 *.sqlite
